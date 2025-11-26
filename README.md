@@ -17,33 +17,33 @@ A Job Readiness Intelligence Engine that evaluates a user's current skills, dete
 
 **Primary users (MVP scope):**
 
-Data Science candidates
+* Data Science candidates
 
-Machine Learning Engineer candidates
+* Machine Learning Engineer candidates
 
-AI Engineer candidates
+* AI Engineer candidates
 
 **Planned expansion:**
 
-Software Engineering
+* Software Engineering
 
-Finance
+* Finance
 
-Mechanical Engineering
+* Mechanical Engineering
 
 **Additional technical and non-technical career paths**
 
-Both entry-level and senior candidates
+* Both entry-level and senior candidates
 
 **MVP Features**
 **1. Skill Gap Detection**
 
-Users upload their resume or answer domain-specific questions.
+* Users upload their resume or answer domain-specific questions.
 Our system:
 
-Analyzes skills, tools, and domain knowledge
+* Analyzes skills, tools, and domain knowledge
 
-Compares them to real job requirements
+* Compares them to real job requirements
 
 Returns structured “knowledge gap” outputs
 
