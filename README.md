@@ -180,7 +180,9 @@ Output: Personalized study plan with curated, high quality resources
 
 ### **RAG**
 
-In this Repo, and for our first steps, we can create the script to take in text and output the Vector DB. We can use non-GCP native tools(ie Transformers, Pinecone) to create the vector DB, and we will have the DB be hosted in GCP. When the user(ie the Professor) runs our final demo script, the Vector DB will either be downloaded by the Professor or we can upload it to Hugging Face Hub for easy access[Pranav & Alex, you guys figure this out]  
+In this Repo, and for our first steps, we can create the script to take in text and output the Vector DB. We can use non-GCP native tools(ie Transformers, Pinecone) to create the vector DB, and we will have the DB be hosted in GCP. When the user(ie the Professor) runs our final demo script, the Vector DB will either be downloaded by the Professor from GCP or we can upload it to Hugging Face Hub for easy access[Pranav & Alex, you guys figure this out]  
+
+
 
 
 
