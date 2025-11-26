@@ -118,7 +118,7 @@ Communicates with backend through REST API calls.
 
 * Retrieval + reasoning layer
 
-📁 Repository Structure (Proposed)
+Repository Structure (Proposed)
 
 ```
 resumejobhelpai/
@@ -144,7 +144,7 @@ resumejobhelpai/
 └── README.md
 ```
 
-Agentic Workflow (Proposed)
+Agentic Workflow 
 
 ```
 Agent 1 [Skill Extractor Agent]
