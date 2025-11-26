@@ -14,7 +14,7 @@ A Job Readiness Intelligence Engine that evaluates a user's current skills, dete
 
 🎯 Intended Users
 
-#Primary users (MVP scope):
+**Primary users (MVP scope):**
 
 Data Science candidates
 
@@ -22,7 +22,7 @@ Machine Learning Engineer candidates
 
 AI Engineer candidates
 
-#Planned expansion:
+**Planned expansion:**
 
 Software Engineering
 
@@ -30,11 +30,11 @@ Finance
 
 Mechanical Engineering
 
-#Additional technical and non-technical career paths
+**Additional technical and non-technical career paths**
 
 Both entry-level and senior candidates
 
-#MVP Features
+**MVP Features**
 1. Skill Gap Detection
 
 Users upload their resume or answer domain-specific questions.
@@ -82,13 +82,13 @@ Increasing difficulty levels
 
 Answer explanations based on the RAG knowledge base
 
-#High-Level Architecture
+**High-Level Architecture**
 
-#Frontend:
+**Frontend:**
 Built using Lovable (React-like UI).
 Communicates with backend through REST API calls.
 
-#Backend (GCP):
+**Backend (GCP):**
 
 Cloud Run – hosts API server (FastAPI / Python)
 
@@ -100,7 +100,7 @@ Firestore – user sessions, progress, study plans
 
 Cloud Functions (optional) – lightweight utilities
 
-#RAG Pipeline:
+**RAG Pipeline:**
 
 Document ingestion
 
