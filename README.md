@@ -7,12 +7,13 @@ Sripad Karne · Pranav Kandula · Alexandre Edouard Eleuthe Sepulveda de Dietric
 
 ## **Problem Statement**
 
-Job seekers—especially in Data Science, Machine Learning, and AI Engineering—often struggle to assess whether they are qualified for a role and to identify the skills they need to improve. Existing AI tools generate answers but don’t actually teach.
+Job seekers, especially in Data Science, Machine Learning, and AI Engineering, often struggle to assess whether they are qualified for a role and to identify the skills they need to improve. Existing AI tools generate answers but don’t actually teach.
 
 Our solution:
+
 A Job Readiness Intelligence Engine that evaluates a user's current skills, detects knowledge gaps, and generates targeted study pathways using high-quality, credible resources. No shortcuts. True knowledge growth.
 
-🎯 Intended Users
+## **Intended Users**
 
 **Primary users (MVP scope):**
 
