@@ -5,7 +5,7 @@ Resume Readiness Intelligence Engine(RRIE) is a web-based application that uses 
 Developed by:
 Sripad Karne · Pranav Kandula · Alexandre Edouard Eleuthe Sepulveda de Dietrich
 
-🧠 Problem Statement
+##Problem Statement##
 
 Job seekers—especially in Data Science, Machine Learning, and AI Engineering—often struggle to assess whether they are qualified for a role and to identify the skills they need to improve. Existing AI tools generate answers but don’t actually teach.
 
