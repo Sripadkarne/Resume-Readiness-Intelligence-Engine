@@ -35,7 +35,7 @@ Mechanical Engineering
 Both entry-level and senior candidates
 
 **MVP Features**
-1. Skill Gap Detection
+**1. Skill Gap Detection**
 
 Users upload their resume or answer domain-specific questions.
 Our system:
@@ -46,7 +46,7 @@ Compares them to real job requirements
 
 Returns structured “knowledge gap” outputs
 
-2. RAG-Based Knowledge Retrieval
+**2. RAG-Based Knowledge Retrieval**
 
 The RAG database is built from credible sources:
 
@@ -60,7 +60,7 @@ Curated articles, videos, PDFs, and tutorials
 
 The engine retrieves explanations, examples, and runnable insights—not generic fluff.
 
-3. Personalized Study Plans
+**3. Personalized Study Plans**
 
 For every knowledge gap, the system generates:
 
@@ -72,7 +72,7 @@ Hands-on exercises
 
 Timelines and difficulty progression
 
-4. Practice Question Generator
+**4. Practice Question Generator**
 
 We use agentic AI to produce:
 
@@ -111,3 +111,29 @@ Embedding generation
 Storage in vector DB (e.g., Vertex Matching Engine or self-hosted)
 
 Retrieval + reasoning layer
+
+📁 Repository Structure (Proposed)
+
+```
+resumejobhelpai/
+│── backend/
+│   ├── main.py               
+│   ├── rag/
+│   │   ├── ingest.py
+│   │   ├── chunking.py
+│   │   ├── embed.py
+│   │   ├── retrieve.py
+│   ├── agents/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│
+│── frontend/
+│   ├── lovable/              # Optional Lovable export
+│
+│── docs/
+│   ├── architecture.md
+│   ├── api.md
+│   ├── infra.md
+│
+└── README.md
+```
