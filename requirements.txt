@@ -1,0 +1,28 @@
+# Core API stack
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+
+# LLM / RAG tooling
+langchain
+openai
+tiktoken
+chromadb
+pinecone-client
+sentence-transformers
+spacy
+nltk
+
+# Data wrangling
+numpy
+pandas
+scikit-learn
+
+# Document parsing
+pypdf
+pdfplumber
+pyresparser
+
+# HTTP helpers
+requests
