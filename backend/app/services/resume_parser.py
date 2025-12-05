@@ -1,30 +1,21 @@
-"""Functional résumé parsing helpers.
+"""Functional résumé parsing helpers returning XML strings.
 
 Example
 -------
->>> profile = parse_resume_pdf("backend/Agents/resume_parsing/resume_pdf/Resume_ASDD_CSxCU.pdf")
->>> profile.skills[0].name
-'Machine Learning'
+>>> xml_string = parse_resume_pdf("backend/Agents_wip/resume_parsing/resume_pdf/Resume_ASDD_CSxCU.pdf")
+>>> xml_string.startswith("<?xml")
+True
 """
 
 from __future__ import annotations
 
 import textwrap
 from pathlib import Path
-from typing import Iterable
-from xml.etree import ElementTree as ET
 
 import pdfplumber
 from langchain_groq import ChatGroq
 
 from ..config import settings
-from ..models import (
-    EducationEntry,
-    ExperienceEntry,
-    ProjectEntry,
-    ResumeProfile,
-    SkillCategory,
-)
 
 
 def parse_resume_pdf(
@@ -34,8 +25,8 @@ def parse_resume_pdf(
     model: str | None = None,
     temperature: float | None = None,
     max_tokens: int | None = None,
-) -> ResumeProfile:
-    """Convert a résumé PDF into a :class:`ResumeProfile`."""
+) -> str:
+    """Convert a résumé PDF into an XML string."""
 
     raw_text = _extract_text_from_pdf(Path(pdf_path))
     return parse_resume_text(
@@ -54,7 +45,7 @@ def parse_resume_text(
     model: str | None = None,
     temperature: float | None = None,
     max_tokens: int | None = None,
-) -> ResumeProfile:
+) -> str:
     """Run parsing on already extracted plain text (useful for tests)."""
 
     prompt = _build_llm_prompt(resume_text)
@@ -65,7 +56,7 @@ def parse_resume_text(
         temperature=temperature,
         max_tokens=max_tokens,
     )
-    return _xml_to_profile(xml_payload, resume_text)
+    return xml_payload
 
 
 # ------------------------------------------------------------------
@@ -90,7 +81,9 @@ def _build_llm_prompt(resume_text: str) -> str:
         2. Work experiences (position, company, bullet descriptions). Omit dates and locations.
         3. Project entries with name, optional context, and bullet descriptions.
         4. Education entries with degree, institution, and explicit coursework.
-        5. Any additional noteworthy bullet points under an <other> section.
+        5. Do not include any personally identifiable information (names, emails, phone numbers, addresses).
+        6. Omit any skill that is not technical or related to data science positions. Do not include language or soft skills.
+        7. Any additional noteworthy bullet points under an <other> section.
 
         Return well-formed XML using this schema:
         <resume>
@@ -190,68 +183,6 @@ def _extract_xml_fragment(payload: str) -> str:
         begin = cleaned.find("<resume")
         finish = cleaned.rfind("</resume>") + len("</resume>")
         cleaned = cleaned[begin:finish]
-    return cleaned
-
-
-def _xml_to_profile(xml_payload: str, raw_text: str) -> ResumeProfile:
-    try:
-        root = ET.fromstring(xml_payload)
-    except ET.ParseError as exc:  # pragma: no cover
-        raise RuntimeError(f"LLM output is not valid XML:\n{xml_payload}") from exc
-
-    skill_categories = [
-        SkillCategory(
-            name=(category.get("name") or "Uncategorized").strip(),
-            skills=_text_list(category.findall("skill")),
-        )
-        for category in root.findall("./skills/category")
-    ]
-
-    experiences = [
-        ExperienceEntry(
-            position=(job.findtext("position") or "").strip(),
-            company=(job.findtext("company") or "").strip() or None,
-            bullets=_text_list(job.findall("description/bullet")),
-        )
-        for job in root.findall("./experience/job")
-    ]
-
-    projects = [
-        ProjectEntry(
-            name=(proj.findtext("name") or "").strip(),
-            context=(proj.findtext("context") or "").strip() or None,
-            bullets=_text_list(proj.findall("description/bullet")),
-        )
-        for proj in root.findall("./projects/project")
-    ]
-
-    education_entries = [
-        EducationEntry(
-            degree=(entry.findtext("degree") or "").strip(),
-            institution=(entry.findtext("institution") or "").strip(),
-            courses=_text_list(entry.findall("courses/course")),
-        )
-        for entry in root.findall("./education/entry")
-    ]
-
-    other_lines = _text_list(root.findall("./other/line"))
-
-    return ResumeProfile(
-        raw_text=raw_text,
-        skills=skill_categories,
-        experience=experiences,
-        projects=projects,
-        education=education_entries,
-        other=other_lines,
-    )
-
-
-def _text_list(elements: Iterable[ET.Element]) -> list[str]:
-    cleaned: list[str] = []
-    for elem in elements:
-        text = (elem.text or "").strip()
-        if text:
-            cleaned.append(text)
     return cleaned
 
 

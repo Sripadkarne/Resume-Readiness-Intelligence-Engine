@@ -18,21 +18,21 @@ This document explains how the Resume Readiness Intelligence Engine repository i
 
 ```
 backend/app/
-├── __init__.py               # Exposes shared config/models when importing `app`
+├── __init__.py               # Exposes shared config when importing `app`
 ├── api/                      # FastAPI routes or other HTTP entrypoints
 ├── config.py                 # Environment-driven settings (LLM models, API keys)
-├── data/                     # Static JSON/YAML assets (skill taxonomies, curated catalogs)
-├── models.py                 # Pydantic schemas that flow between agents
+├── data/                     # Static XML assets (skill taxonomies, curated catalogs)
 ├── prompts/                  # Prompt templates and instructions for LLM calls
 ├── rag/                      # RAG ingestion + retrieval helpers
-├── services/                 # Business logic (resume parser, job parser, skill extractor, etc.)
+├── services/                 # Business logic (resume parser, skill evaluators, etc.)
 └── workflow/                 # Orchestrators and pipelines that stitch services together
 ```
 
 ### Key Services
 
-- `services/resume_parser.py`: Converts PDFs or plaintext into `ResumeProfile` objects using the Groq LLM. Includes sample usage in the module docstring.
-- `services/job_parser.py`: Normalizes job descriptions into `JobProfile` objects using lightweight heuristics.
+- `services/resume_parser.py`: Converts PDFs or plaintext into the canonical XML schema via Groq (returned as a raw XML string).
+- `services/resume_skill_eval.py`: Accepts the résumé XML, calls an LLM with a few-shot prompt, and returns a `{ "skills": [{"name": str, "level": int}] }` dictionary with 0-3 mastery levels.
+- `services/job_skill_eval.py`: Reads raw job descriptions and emits `<jobSkills>` XML with 0-3 priority levels per skill (useful for gap comparisons).
 - Future modules (`skill_extractor.py`, `gap_analyzer.py`, etc.) belong in `services/` as they handle a single domain task.
 
 ### Workflow Layer
@@ -67,7 +67,7 @@ Reusable CLI scripts (for ingestion, deployment, or batch jobs) live under `scri
 ## How to Extend
 
 1. **Add raw assets** (prompts, data) under `backend/app/prompts` or `backend/app/data`.
-2. **Create/extend services** inside `backend/app/services` with clear docstrings and Pydantic models from `models.py`.
+2. **Create/extend services** inside `backend/app/services` with clear docstrings and dictionary-based contracts (keep schemas simple and documented in code/comments).
 3. **Wire logic** via an orchestrator in `backend/app/workflow`.
 4. **Expose endpoints** in `backend/app/api/main.py` once the workflow is ready.
 5. **Update this README** if you add new top-level directories or conventions.

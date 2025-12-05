@@ -1,8 +1,7 @@
 """Application package for the Resume Readiness Intelligence Engine backend."""
 
-from . import config, models  # re-export for convenience
+from . import config
 
 __all__ = [
     "config",
-    "models",
 ]
