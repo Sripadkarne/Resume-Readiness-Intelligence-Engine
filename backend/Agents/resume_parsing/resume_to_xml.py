@@ -42,7 +42,7 @@ def build_llm_prompt(resume_text: str) -> str:
         1. Skills section (grouped by category when possible). Only include technical skills/tools/frameworks; drop human language proficiency entries.
         2. Work experience entries with position, company, and bullet descriptions (omit any dates or locations entirely).
         3. Project entries with name, optional context, and descriptions.
-        4. Education entries (degree, institution, dates, location) plus any explicit coursework.
+        4. Education entries (degree, institution) plus any explicit coursework. Omit dates and location
         5. Any remaining noteworthy lines (place under <other>), excluding personal identifiers.
 
         Output well-formed XML that matches this structure exactly:
