@@ -31,15 +31,12 @@ def analyze_resume(payload: dict[str, str]) -> dict[str, object]:
     - `job_title` / `company` (optional): Overrides when the JD lacks metadata.
     """
 
-    resume_xml, job_profile = analyze_inputs(
+    resume_xml = analyze_inputs(
         resume_pdf_path=payload["resume_pdf_path"],
-        job_description_text=payload["job_description"],
-        job_title=payload.get("job_title"),
-        company=payload.get("company"),
+        job_description_text=payload.get("job_description"),
     )
 
     # Downstream: pass these objects into skill extraction, gap analysis, etc.
     return {
         "resume_xml": resume_xml,
-        "job_profile": job_profile,
     }

@@ -2,31 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Tuple
-
-from ..services import parse_job_description, parse_resume_pdf
+from ..services import parse_resume_pdf
 
 
 def analyze_inputs(
     *,
     resume_pdf_path: str,
-    job_description_text: str,
-    job_title: str | None = None,
-    company: str | None = None,
-    default_job_title: str | None = None,
-    default_company: str | None = None,
-) -> Tuple[str, dict]:
-    """Return structured résumé XML and job dictionary ready for downstream agents."""
+    job_description_text: str | None = None,
+) -> str:
+    """Return structured résumé XML ready for downstream agents."""
 
-    resume_xml = parse_resume_pdf(resume_pdf_path)
-    job_profile = parse_job_description(
-        job_description_text,
-        title=job_title,
-        company=company,
-        default_title=default_job_title,
-        default_company=default_company,
-    )
-    return resume_xml, job_profile
+    # job_description_text retained for compatibility but unused.
+    return parse_resume_pdf(resume_pdf_path)
 
 
 __all__ = ["analyze_inputs"]

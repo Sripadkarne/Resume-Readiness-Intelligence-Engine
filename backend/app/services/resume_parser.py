@@ -81,7 +81,9 @@ def _build_llm_prompt(resume_text: str) -> str:
         2. Work experiences (position, company, bullet descriptions). Omit dates and locations.
         3. Project entries with name, optional context, and bullet descriptions.
         4. Education entries with degree, institution, and explicit coursework.
-        5. Any additional noteworthy bullet points under an <other> section.
+        5. Do not include any personally identifiable information (names, emails, phone numbers, addresses).
+        6. Omit any skill that is not technical or related to data science positions. Do not include language or soft skills.
+        7. Any additional noteworthy bullet points under an <other> section.
 
         Return well-formed XML using this schema:
         <resume>
