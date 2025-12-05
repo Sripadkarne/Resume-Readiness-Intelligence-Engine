@@ -40,6 +40,6 @@ def analyze_resume(payload: dict[str, str]) -> dict[str, object]:
 
     # Downstream: pass these objects into skill extraction, gap analysis, etc.
     return {
-        "resume_profile": resume_profile.model_dump(),
-        "job_profile": job_profile.model_dump(),
+        "resume_profile": resume_profile,
+        "job_profile": job_profile,
     }

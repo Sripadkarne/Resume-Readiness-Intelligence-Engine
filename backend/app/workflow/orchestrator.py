@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from ..models import JobProfile, ResumeProfile
+from typing import Tuple
+
 from ..services import parse_job_description, parse_resume_pdf
 
 
@@ -14,8 +15,8 @@ def analyze_inputs(
     company: str | None = None,
     default_job_title: str | None = None,
     default_company: str | None = None,
-) -> tuple[ResumeProfile, JobProfile]:
-    """Return structured résumé and job profiles ready for downstream agents."""
+) -> Tuple[dict, dict]:
+    """Return structured résumé and job dictionaries ready for downstream agents."""
 
     resume_profile = parse_resume_pdf(resume_pdf_path)
     job_profile = parse_job_description(

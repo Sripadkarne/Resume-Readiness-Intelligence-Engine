@@ -1,10 +1,10 @@
-"""Functional helpers for normalizing job descriptions.
+"""Functional helpers for normalizing job descriptions into dictionaries.
 
 Example
 -------
->>> jd_text = "Data Scientist\\nResponsibilities:\\n- Build ML models\\nRequirements:\\n- Python\\n- SQL"
+>>> jd_text = "Data Scientist\nResponsibilities:\n- Build ML models\nRequirements:\n- Python\n- SQL"
 >>> job = parse_job_description(jd_text, default_title="Data Scientist")
->>> job.required_skills
+>>> job["required_skills"]
 ['Python', 'SQL']
 """
 
@@ -12,8 +12,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Iterable
-
-from ..models import JobProfile
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,8 +46,8 @@ def parse_job_description(
     default_title: str | None = None,
     default_company: str | None = None,
     section_aliases: SectionAliases = DEFAULT_ALIASES,
-) -> JobProfile:
-    """Return a :class:`JobProfile` built from raw job-description text."""
+) -> dict:
+    """Return a dictionary built from raw job-description text."""
 
     sections = _split_sections(job_text, section_aliases)
     responsibilities = _normalize_items(sections.get("responsibilities", []))
@@ -59,14 +57,14 @@ def parse_job_description(
     summary_lines = sections.get("summary", [])
     summary = " ".join(summary_lines[:2]).strip() or None
 
-    return JobProfile(
-        title=title or default_title,
-        company=company or default_company,
-        summary=summary,
-        responsibilities=responsibilities,
-        required_skills=required,
-        nice_to_have_skills=nice_to_have,
-    )
+    return {
+        "title": title or default_title,
+        "company": company or default_company,
+        "summary": summary,
+        "responsibilities": responsibilities,
+        "required_skills": required,
+        "nice_to_have_skills": nice_to_have,
+    }
 
 
 def _split_sections(text: str, section_aliases: SectionAliases) -> dict[str, list[str]]:
