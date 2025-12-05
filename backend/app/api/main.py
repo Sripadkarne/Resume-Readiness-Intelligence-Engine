@@ -9,10 +9,9 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 
-from ..workflow import AnalysisOrchestrator
+from ..workflow import analyze_inputs
 
 app = FastAPI(title="Resume Readiness Intelligence Engine")
-orchestrator = AnalysisOrchestrator()
 
 
 @app.get("/health")
@@ -32,7 +31,7 @@ def analyze_resume(payload: dict[str, str]) -> dict[str, object]:
     - `job_title` / `company` (optional): Overrides when the JD lacks metadata.
     """
 
-    resume_profile, job_profile = orchestrator.analyze(
+    resume_profile, job_profile = analyze_inputs(
         resume_pdf_path=payload["resume_pdf_path"],
         job_description_text=payload["job_description"],
         job_title=payload.get("job_title"),

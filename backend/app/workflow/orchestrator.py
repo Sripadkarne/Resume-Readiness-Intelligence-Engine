@@ -1,37 +1,31 @@
-"""High-level pipeline that connects the individual services."""
+"""High-level pipeline wiring functional services together."""
 
 from __future__ import annotations
 
 from ..models import JobProfile, ResumeProfile
-from ..services import JobParsingService, ResumeParsingService
+from ..services import parse_job_description, parse_resume_pdf
 
 
-class AnalysisOrchestrator:
-    """Coordinates parsing for the résumé and job description inputs."""
+def analyze_inputs(
+    *,
+    resume_pdf_path: str,
+    job_description_text: str,
+    job_title: str | None = None,
+    company: str | None = None,
+    default_job_title: str | None = None,
+    default_company: str | None = None,
+) -> tuple[ResumeProfile, JobProfile]:
+    """Return structured résumé and job profiles ready for downstream agents."""
 
-    def __init__(
-        self,
-        *,
-        resume_parser: ResumeParsingService | None = None,
-        job_parser: JobParsingService | None = None,
-    ) -> None:
-        self.resume_parser = resume_parser or ResumeParsingService()
-        self.job_parser = job_parser or JobParsingService()
+    resume_profile = parse_resume_pdf(resume_pdf_path)
+    job_profile = parse_job_description(
+        job_description_text,
+        title=job_title,
+        company=company,
+        default_title=default_job_title,
+        default_company=default_company,
+    )
+    return resume_profile, job_profile
 
-    def analyze(
-        self,
-        *,
-        resume_pdf_path: str,
-        job_description_text: str,
-        job_title: str | None = None,
-        company: str | None = None,
-    ) -> tuple[ResumeProfile, JobProfile]:
-        """Return structured objects to feed into later agents."""
 
-        resume_profile = self.resume_parser.parse_pdf(resume_pdf_path)
-        job_profile = self.job_parser.parse_text(
-            job_description_text,
-            title=job_title,
-            company=company,
-        )
-        return resume_profile, job_profile
+__all__ = ["analyze_inputs"]
