@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<skillTaxonomy version="0.1">
+  <category name="Programming Languages">
+    <alias>Python</alias>
+    <alias>R</alias>
+    <alias>SQL</alias>
+  </category>
+  <category name="Machine Learning">
+    <alias>XGBoost</alias>
+    <alias>Random Forest</alias>
+    <alias>Logistic Regression</alias>
+  </category>
+  <category name="Data Platforms">
+    <alias>Spark</alias>
+    <alias>Databricks</alias>
+    <alias>Snowflake</alias>
+  </category>
+</skillTaxonomy>
