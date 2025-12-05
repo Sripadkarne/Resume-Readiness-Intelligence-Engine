@@ -17,6 +17,7 @@ from backend.app.services.job_skill_eval
 
 # --- Import Agent 3 & 4 Components (Placeholders based on context) ---
 # AGENT 3: Skill Gap Finder 
+from backend.app.services.skill_gap_eval
 
 
 # NOTE: This function needs to be created in your project (e.g., backend/agents/skill_gap_finder.py)
@@ -87,8 +88,9 @@ def run_job_readiness_engine_orchestrator(resume_pdf_path: str, job_description:
     print("\n--- 3. Agent 3 (find_skill_gaps): Skills -> Gap Summary ---")
     # Compares the two lists generated in Step 2.
     try:
-        skill_gap_summary = find_skill_gaps(resume_skills_scored, job_skills_scored)
-        print(f"  -> Identified Gap: '{skill_gap_summary[:70]}...'")
+        #need to change this 
+        skill_gap_summary = skill_gap_eval(job_skills_scored, resume_skills_scored)
+        print(f"  -> Identified Gap: '{skill_gap_summary[:25]}...'")
     except Exception as e:
         print(f"ERROR in Agent 3: {e}")
         return "Workflow failed during skill gap analysis."
