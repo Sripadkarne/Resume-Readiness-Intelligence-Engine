@@ -30,8 +30,9 @@ backend/app/
 
 ### Key Services
 
-- `services/resume_parser.py`: Converts PDFs or plaintext into lightweight dictionaries (skills, experience, etc.) using the Groq LLM. Includes sample usage in the module docstring.
+- `services/resume_parser.py`: Converts PDFs or plaintext into the canonical XML schema via Groq (returned as a raw XML string).
 - `services/job_parser.py`: Normalizes job descriptions into dictionaries via lightweight heuristics.
+- `services/resume_skill_eval.py`: Accepts the résumé XML, calls an LLM with a few-shot prompt, and returns a `{ "skills": [{"name": str, "level": int}] }` dictionary with 0-3 mastery levels.
 - Future modules (`skill_extractor.py`, `gap_analyzer.py`, etc.) belong in `services/` as they handle a single domain task.
 
 ### Workflow Layer

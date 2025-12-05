@@ -1,18 +1,16 @@
-"""Functional résumé parsing helpers returning plain dictionaries.
+"""Functional résumé parsing helpers returning XML strings.
 
 Example
 -------
->>> data = parse_resume_pdf("backend/Agents_wip/resume_parsing/resume_pdf/Resume_ASDD_CSxCU.pdf")
->>> data["skills"][0]["name"]
-'Machine Learning'
+>>> xml_string = parse_resume_pdf("backend/Agents_wip/resume_parsing/resume_pdf/Resume_ASDD_CSxCU.pdf")
+>>> xml_string.startswith("<?xml")
+True
 """
 
 from __future__ import annotations
 
 import textwrap
 from pathlib import Path
-from typing import Iterable
-from xml.etree import ElementTree as ET
 
 import pdfplumber
 from langchain_groq import ChatGroq
@@ -27,8 +25,8 @@ def parse_resume_pdf(
     model: str | None = None,
     temperature: float | None = None,
     max_tokens: int | None = None,
-) -> dict:
-    """Convert a résumé PDF into a structured dictionary."""
+) -> str:
+    """Convert a résumé PDF into an XML string."""
 
     raw_text = _extract_text_from_pdf(Path(pdf_path))
     return parse_resume_text(
@@ -47,7 +45,7 @@ def parse_resume_text(
     model: str | None = None,
     temperature: float | None = None,
     max_tokens: int | None = None,
-) -> dict:
+) -> str:
     """Run parsing on already extracted plain text (useful for tests)."""
 
     prompt = _build_llm_prompt(resume_text)
@@ -58,7 +56,7 @@ def parse_resume_text(
         temperature=temperature,
         max_tokens=max_tokens,
     )
-    return _xml_to_dict(xml_payload, resume_text)
+    return xml_payload
 
 
 # ------------------------------------------------------------------
@@ -183,68 +181,6 @@ def _extract_xml_fragment(payload: str) -> str:
         begin = cleaned.find("<resume")
         finish = cleaned.rfind("</resume>") + len("</resume>")
         cleaned = cleaned[begin:finish]
-    return cleaned
-
-
-def _xml_to_dict(xml_payload: str, raw_text: str) -> dict:
-    try:
-        root = ET.fromstring(xml_payload)
-    except ET.ParseError as exc:  # pragma: no cover
-        raise RuntimeError(f"LLM output is not valid XML:\n{xml_payload}") from exc
-
-    skill_categories = [
-        {
-            "name": (category.get("name") or "Uncategorized").strip(),
-            "skills": _text_list(category.findall("skill")),
-        }
-        for category in root.findall("./skills/category")
-    ]
-
-    experiences = [
-        {
-            "position": (job.findtext("position") or "").strip(),
-            "company": (job.findtext("company") or "").strip() or None,
-            "bullets": _text_list(job.findall("description/bullet")),
-        }
-        for job in root.findall("./experience/job")
-    ]
-
-    projects = [
-        {
-            "name": (proj.findtext("name") or "").strip(),
-            "context": (proj.findtext("context") or "").strip() or None,
-            "bullets": _text_list(proj.findall("description/bullet")),
-        }
-        for proj in root.findall("./projects/project")
-    ]
-
-    education_entries = [
-        {
-            "degree": (entry.findtext("degree") or "").strip(),
-            "institution": (entry.findtext("institution") or "").strip(),
-            "courses": _text_list(entry.findall("courses/course")),
-        }
-        for entry in root.findall("./education/entry")
-    ]
-
-    other_lines = _text_list(root.findall("./other/line"))
-
-    return {
-        "raw_text": raw_text,
-        "skills": skill_categories,
-        "experience": experiences,
-        "projects": projects,
-        "education": education_entries,
-        "other": other_lines,
-    }
-
-
-def _text_list(elements: Iterable[ET.Element]) -> list[str]:
-    cleaned: list[str] = []
-    for elem in elements:
-        text = (elem.text or "").strip()
-        if text:
-            cleaned.append(text)
     return cleaned
 
 

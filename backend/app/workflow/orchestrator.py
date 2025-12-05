@@ -15,10 +15,10 @@ def analyze_inputs(
     company: str | None = None,
     default_job_title: str | None = None,
     default_company: str | None = None,
-) -> Tuple[dict, dict]:
-    """Return structured résumé and job dictionaries ready for downstream agents."""
+) -> Tuple[str, dict]:
+    """Return structured résumé XML and job dictionary ready for downstream agents."""
 
-    resume_profile = parse_resume_pdf(resume_pdf_path)
+    resume_xml = parse_resume_pdf(resume_pdf_path)
     job_profile = parse_job_description(
         job_description_text,
         title=job_title,
@@ -26,7 +26,7 @@ def analyze_inputs(
         default_title=default_job_title,
         default_company=default_company,
     )
-    return resume_profile, job_profile
+    return resume_xml, job_profile
 
 
 __all__ = ["analyze_inputs"]
