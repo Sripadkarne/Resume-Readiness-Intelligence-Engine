@@ -11,7 +11,14 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 load_dotenv()
 GROQ_API_KEY = os.getenv("API_KEY")
 GROQ_MODEL_NAME = "llama-3.1-8b-instant" 
-CHROMA_DIR = '/Users/pranavkandula/Desktop/School/Fall 2025/AI-Engineering/Final_Project/Resume-Readiness-Intelligence-Engine/VectorDB'
+#CHROMA_DIR = '/Users/pranavkandula/Desktop/School/Fall 2025/AI-Engineering/Final_Project/Resume-Readiness-Intelligence-Engine/VectorDB'
+
+home_dir = Path.home() 
+project_directory = "Resume-Readiness-Intelligence-Engine"
+vector_db_folder = "VectorDB"
+CHROMA_DIR = home_dir / project_directory / vector_db_folder
+CHROMA_DIR = str(CHROMA_DIR) # Convert back to string if the library requires it
+
 COLLECTION_NAME = "RAG_DB_Learning_Resources"
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
