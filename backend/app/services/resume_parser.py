@@ -16,6 +16,7 @@ import pdfplumber
 from langchain_groq import ChatGroq
 
 from ..config import settings
+from ..utils import extract_xml_fragment
 
 
 def parse_resume_pdf(
@@ -149,7 +150,7 @@ def _invoke_llm(
         ("user", prompt),
     ]
     response = client.invoke(messages)
-    return _extract_xml_fragment(response.content or "")
+    return extract_xml_fragment(response.content or "", "resume")
 
 
 def _resolve_llm(
@@ -168,22 +169,6 @@ def _resolve_llm(
         timeout=None,
         max_retries=2,
     )
-
-
-def _extract_xml_fragment(payload: str) -> str:
-    cleaned = payload.strip()
-    if "```" in cleaned:
-        start = cleaned.find("```") + 3
-        candidate = cleaned[start:]
-        if candidate.lower().startswith("xml"):
-            candidate = candidate[3:]
-        end = candidate.find("```")
-        cleaned = candidate[:end].strip() if end != -1 else candidate.strip()
-    if "<resume" in cleaned and "</resume>" in cleaned:
-        begin = cleaned.find("<resume")
-        finish = cleaned.rfind("</resume>") + len("</resume>")
-        cleaned = cleaned[begin:finish]
-    return cleaned
 
 
 __all__ = ["parse_resume_pdf", "parse_resume_text"]
