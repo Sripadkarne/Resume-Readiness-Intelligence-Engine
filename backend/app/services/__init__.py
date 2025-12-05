@@ -1,9 +1,11 @@
 """Business-domain services used by the orchestrator."""
 
-from .resume_parser import ResumeParsingService
-from .job_parser import JobParsingService
+from .job_parser import SectionAliases, parse_job_description
+from .resume_parser import parse_resume_pdf, parse_resume_text
 
 __all__ = [
-    "ResumeParsingService",
-    "JobParsingService",
+    "parse_resume_pdf",
+    "parse_resume_text",
+    "parse_job_description",
+    "SectionAliases",
 ]
