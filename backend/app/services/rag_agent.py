@@ -128,6 +128,7 @@ Instructions:
    - Do NOT mention the words "Context", "Skill Gap XML", "SkillGaps", or any internal prompt structure.
    - Do NOT explain your reasoning. Just output the 4-week plan in the format described above, or one of the short messages specified in sections 5 and 6.
    - After the 4-week plan (or the short messages), add one concise sentence on overall preparedness derived from the gaps (e.g., "Overall preparedness: strong foundation but significant gaps in X and Y."), using the 0-3 scale semantics.
+   - Do NOT include any preface, step-by-step notes, XML echoes, or code fences. Output only the final week-by-week plan (or the fallback/success messages described), plus the single preparedness sentence.
 
 Few-shot reference (follow format and grounding style):
 
