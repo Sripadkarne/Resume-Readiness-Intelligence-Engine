@@ -355,6 +355,38 @@
       overflow-x: auto;
       position: relative;
       z-index: 1;
+      min-height: 120px;
+    }
+
+    .table-wrap {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: inset 0 0 0 1px rgba(12, 74, 110, 0.02);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead {
+      background: #f0f4f8;
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
     }
   </style>
 </head>
@@ -449,6 +481,23 @@
 
     <h3>Study Plan</h3>
     <pre id="plan">(Run an analysis to see results here.)</pre>
+
+    <h3>Skills Overview</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Resume Level</th>
+            <th>Job Requirement</th>
+            <th>Gap</th>
+          </tr>
+        </thead>
+        <tbody id="skills-table-body">
+          <tr><td colspan="4" style="text-align:center; color: var(--muted);">Run an analysis to see skills.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -458,7 +507,10 @@
     const resumeInput = document.getElementById("resume-input");
     const jdInput = document.getElementById("jd-textarea");
     const viewSelect = document.getElementById("view-select");
+    const skillsTableBody = document.getElementById("skills-table-body");
     let lastRawPlan = "";
+    let lastJobSkills = [];
+    let lastResumeSkills = [];
 
     const API_URL = "http://localhost:8000/analyze-upload";
 
@@ -529,7 +581,10 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "Request failed");
         lastRawPlan = data.study_plan || "";
+        lastJobSkills = data.job_skills || [];
+        lastResumeSkills = data.resume_skills || [];
         renderView();
+        renderSkillsTable();
         setStatus("Done");
       } catch (err) {
         console.error(err);
@@ -553,6 +608,56 @@
     }
 
     viewSelect.addEventListener("change", renderView);
+
+    function renderSkillsTable() {
+      if (!skillsTableBody) return;
+      const labels = ["0 - No Knowledge", "1 - Basic/Beginner", "2 - Intermediate", "3 - Expert/Advanced"];
+      const norm = (name) => (name || "").toLowerCase().trim();
+
+      const resumeMap = new Map();
+      for (const skill of lastResumeSkills || []) {
+        const name = norm(skill.name);
+        if (!name) continue;
+        resumeMap.set(name, skill.level ?? 0);
+      }
+
+      const rows = [];
+      for (const jobSkill of lastJobSkills || []) {
+        const nameRaw = jobSkill.name || "";
+        const name = norm(nameRaw);
+        if (!name) continue;
+        const jobLevel = Number.isFinite(jobSkill.level) ? jobSkill.level : 0;
+        const resumeLevel = Number.isFinite(resumeMap.get(name)) ? resumeMap.get(name) : 0;
+        const gap = Math.max(0, jobLevel - resumeLevel);
+        rows.push({
+          name: nameRaw,
+          resumeLevel,
+          jobLevel,
+          gap,
+        });
+      }
+
+      if (!rows.length) {
+        skillsTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--muted);">No skills available yet.</td></tr>`;
+        return;
+      }
+
+      skillsTableBody.innerHTML = rows
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((row) => {
+          const resumeLabel = labels[row.resumeLevel] || row.resumeLevel;
+          const jobLabel = labels[row.jobLevel] || row.jobLevel;
+          return `
+            <tr>
+              <td>${row.name}</td>
+              <td>${resumeLabel}</td>
+              <td>${jobLabel}</td>
+              <td>${row.gap}</td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
   </script>
 </body>
 </html>
