@@ -20,6 +20,7 @@ def evaluate_job_skills(
     """Return an XML payload of required skills and levels for the given job description."""
 
     prompt = _build_prompt(job_description_text)
+    
     return _invoke_llm(
         prompt,
         llm_client=llm_client,
@@ -28,6 +29,9 @@ def evaluate_job_skills(
         max_tokens=max_tokens,
     )
 
+# ------------------------------------------------------------------
+# Internals
+# ------------------------------------------------------------------
 
 def _build_prompt(job_text: str) -> str:
     few_shot = textwrap.dedent(
@@ -69,7 +73,7 @@ def _build_prompt(job_text: str) -> str:
         - 2 = important but not core
         - 3 = critical / repeatedly emphasized requirement
 
-        Extract up to 25 unique skills (<=3 words each). Prioritize programming languages, ML tools, data platforms, and experimentation skills.
+        Extract up to 25 unique skills (<=3 words each). Prioritize programming languages, ML tools, data platforms, and experimentation skills. Avoid soft skills or generic terms.
         Produce only XML with the schema above.
         """
     ).strip()

@@ -27,7 +27,7 @@ def parse_resume_pdf(
     temperature: float | None = None,
     max_tokens: int | None = None,
 ) -> str:
-    """Convert a résumé PDF into an XML string."""
+    """Convert a résumé PDF into an XML string containning relevant information to figure out skills"""
 
     raw_text = _extract_text_from_pdf(Path(pdf_path))
     return parse_resume_text(
@@ -139,16 +139,19 @@ def _invoke_llm(
     temperature: float | None,
     max_tokens: int | None,
 ) -> str:
+    
     client = _resolve_llm(
         llm_client,
         model=model,
         temperature=temperature,
         max_tokens=max_tokens,
     )
+
     messages = [
         ("system", "You convert resumes into structured XML that matches the requested schema exactly."),
         ("user", prompt),
     ]
+    
     response = client.invoke(messages)
     return extract_xml_fragment(response.content or "", "resume")
 
