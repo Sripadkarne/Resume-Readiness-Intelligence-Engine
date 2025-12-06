@@ -18,19 +18,27 @@ from xml.etree import ElementTree as ET
 from langchain_groq import ChatGroq
 
 from ..config import settings
+from ..utils import extract_xml_fragment, parse_skill_entries
+
+SkillDict = dict[str, int | str]
 
 
 def evaluate_resume_skills(
     resume_xml: str,
     *,
+    job_skill_targets: list[SkillDict] | None = None,
     llm_client: ChatGroq | None = None,
     model: str | None = None,
     temperature: float | None = None,
     max_tokens: int | None = None,
 ) -> dict:
-    """Return a dictionary with skill names and mastery levels 0-3."""
+    """Return a dictionary with skill names and mastery levels 0-3.
 
-    prompt = _build_prompt(resume_xml)
+    When ``job_skill_targets`` is provided, the returned list mirrors those names
+    so downstream gap analysis can compare apples to apples.
+    """
+
+    prompt = _build_prompt(resume_xml, job_skill_targets=job_skill_targets)
     xml_payload = _invoke_llm(
         prompt,
         llm_client=llm_client,
@@ -38,10 +46,10 @@ def evaluate_resume_skills(
         temperature=temperature,
         max_tokens=max_tokens,
     )
-    return _xml_to_skill_dict(xml_payload)
+    return _xml_to_skill_dict(xml_payload, job_skill_targets=job_skill_targets)
 
 
-def _build_prompt(resume_xml: str) -> str:
+def _build_prompt(resume_xml: str, job_skill_targets: list[SkillDict] | None = None) -> str:
     resume_data = _extract_resume_struct(resume_xml)
     # Provide a concrete reference so the model knows how to structure XML + scores.
     few_shot_context = textwrap.dedent(
@@ -72,14 +80,27 @@ def _build_prompt(resume_xml: str) -> str:
     ).strip()
 
     # Collect the resume content the LLM should consider.
-    sections = [
-        "Résumé skill categories:",
-        _format_skill_section(resume_data.get("skills", [])),
-        "\nRésumé experience bullets:",
-        _format_nested_bullets(resume_data.get("experience", []), "position", "bullets"),
-        "\nRésumé projects:",
-        _format_nested_bullets(resume_data.get("projects", []), "name", "bullets"),
-    ]
+    sections = []
+    job_skill_section = _format_job_skill_targets(job_skill_targets or [])
+    if job_skill_section:
+        sections.extend(
+            [
+                "Job-required skills (priority 0-3):",
+                job_skill_section,
+                "",
+            ]
+        )
+
+    sections.extend(
+        [
+            "Résumé skill categories:",
+            _format_skill_section(resume_data.get("skills", [])),
+            "\nRésumé experience bullets:",
+            _format_nested_bullets(resume_data.get("experience", []), "position", "bullets"),
+            "\nRésumé projects:",
+            _format_nested_bullets(resume_data.get("projects", []), "name", "bullets"),
+        ]
+    )
     context = "\n".join(section for section in sections if section).strip()
     instructions = textwrap.dedent(
         """
@@ -103,6 +124,15 @@ def _build_prompt(resume_xml: str) -> str:
         Return only XML, no commentary.
         """
     ).strip()
+    if job_skill_targets:
+        instructions += "\n\n"
+        instructions += textwrap.dedent(
+            """
+            Evaluate the candidate strictly on the job-required skills above. Use the exact skill
+            names provided and emit every one of them, even when the résumé has no supporting
+            evidence (assign level 0 in that case). Preserve the order of the required skills.
+            """
+        ).strip()
     return f"{instructions}\n\nFew-shot reference:\n{few_shot_context}\n\nRésumé context:\n{context}"
 
 
@@ -127,6 +157,18 @@ def _format_nested_bullets(items: Iterable[dict], title_key: str, bullets_key: s
     return "\n".join(lines)
 
 
+def _format_job_skill_targets(job_skill_targets: Iterable[SkillDict]) -> str:
+    lines: list[str] = []
+    for skill in job_skill_targets:
+        name = (skill.get("name") or "").strip()
+        if not name:
+            continue
+        level = skill.get("level")
+        level_text = f"priority {max(0, min(3, level))}" if isinstance(level, int) else "priority n/a"
+        lines.append(f"- {name} ({level_text})")
+    return "\n".join(lines)
+
+
 def _invoke_llm(
     prompt: str,
     *,
@@ -148,45 +190,55 @@ def _invoke_llm(
         ("user", prompt),
     ]
     response = client.invoke(messages)
-    return _extract_xml_fragment(response.content or "")
+    return extract_xml_fragment(response.content or "", "skillsEvaluation")
 
 
-def _extract_xml_fragment(payload: str) -> str:
-    cleaned = payload.strip()
-    if "```" in cleaned:
-        start = cleaned.find("```") + 3
-        candidate = cleaned[start:]
-        if candidate.lower().startswith("xml"):
-            candidate = candidate[3:]
-        end = candidate.find("```")
-        cleaned = candidate[:end].strip() if end != -1 else candidate.strip()
-    if "<skillsEvaluation" in cleaned and "</skillsEvaluation>" in cleaned:
-        begin = cleaned.find("<skillsEvaluation")
-        finish = cleaned.rfind("</skillsEvaluation>") + len("</skillsEvaluation>")
-        cleaned = cleaned[begin:finish]
-    return cleaned
-
-
-def _xml_to_skill_dict(xml_payload: str) -> dict:
-    # Parse the structured response and clamp level values into 0-3.
-    try:
-        root = ET.fromstring(xml_payload)
-    except ET.ParseError as exc:  # pragma: no cover
-        raise RuntimeError(f"LLM output is not valid XML:\n{xml_payload}") from exc
-
-    skills = []
-    for skill_node in root.findall("./skill"):
-        name = (skill_node.findtext("name") or "").strip()
-        level_text = (skill_node.findtext("level") or "0").strip()
-        if not name:
-            continue
-        try:
-            level = max(0, min(3, int(level_text)))
-        except ValueError:
-            level = 0
-        skills.append({"name": name, "level": level})
+def _xml_to_skill_dict(
+    xml_payload: str,
+    *,
+    job_skill_targets: list[SkillDict] | None = None,
+) -> dict:
+    skills = parse_skill_entries(
+        xml_payload,
+        root_tag="skillsEvaluation",
+        error_prefix="LLM output",
+    )
+    if job_skill_targets:
+        skills = _align_with_job_skill_targets(skills, job_skill_targets)
 
     return {"skills": skills}
+
+
+def _align_with_job_skill_targets(
+    scored_skills: Iterable[SkillDict],
+    job_skill_targets: Iterable[SkillDict],
+) -> list[SkillDict]:
+    """Right-join résumé skills with the job-required list."""
+
+    def normalize(name: str) -> str:
+        return " ".join(name.lower().split())
+
+    scored_lookup: dict[str, SkillDict] = {}
+    for skill in scored_skills or []:
+        skill_name = str(skill.get("name") or "").strip()
+        if not skill_name:
+            continue
+        scored_lookup[normalize(skill_name)] = skill
+
+    aligned: list[SkillDict] = []
+    for target in job_skill_targets or []:
+        target_name = (target.get("name") or "").strip()
+        if not target_name:
+            continue
+        normalized = normalize(target_name)
+        match = scored_lookup.get(normalized)
+        level_value = match.get("level") if match else 0
+        try:
+            level = max(0, min(3, int(level_value)))
+        except (TypeError, ValueError):
+            level = 0
+        aligned.append({"name": target_name, "level": level})
+    return aligned
 
 
 __all__ = ["evaluate_resume_skills"]

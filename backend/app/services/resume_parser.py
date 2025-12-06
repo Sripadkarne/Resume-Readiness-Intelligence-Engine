@@ -16,6 +16,7 @@ import pdfplumber
 from langchain_groq import ChatGroq
 
 from ..config import settings
+from ..utils import extract_xml_fragment
 
 
 def parse_resume_pdf(
@@ -26,7 +27,7 @@ def parse_resume_pdf(
     temperature: float | None = None,
     max_tokens: int | None = None,
 ) -> str:
-    """Convert a résumé PDF into an XML string."""
+    """Convert a résumé PDF into an XML string containning relevant information to figure out skills"""
 
     raw_text = _extract_text_from_pdf(Path(pdf_path))
     return parse_resume_text(
@@ -138,18 +139,21 @@ def _invoke_llm(
     temperature: float | None,
     max_tokens: int | None,
 ) -> str:
+    
     client = _resolve_llm(
         llm_client,
         model=model,
         temperature=temperature,
         max_tokens=max_tokens,
     )
+
     messages = [
         ("system", "You convert resumes into structured XML that matches the requested schema exactly."),
         ("user", prompt),
     ]
+    
     response = client.invoke(messages)
-    return _extract_xml_fragment(response.content or "")
+    return extract_xml_fragment(response.content or "", "resume")
 
 
 def _resolve_llm(
@@ -168,22 +172,6 @@ def _resolve_llm(
         timeout=None,
         max_retries=2,
     )
-
-
-def _extract_xml_fragment(payload: str) -> str:
-    cleaned = payload.strip()
-    if "```" in cleaned:
-        start = cleaned.find("```") + 3
-        candidate = cleaned[start:]
-        if candidate.lower().startswith("xml"):
-            candidate = candidate[3:]
-        end = candidate.find("```")
-        cleaned = candidate[:end].strip() if end != -1 else candidate.strip()
-    if "<resume" in cleaned and "</resume>" in cleaned:
-        begin = cleaned.find("<resume")
-        finish = cleaned.rfind("</resume>") + len("</resume>")
-        cleaned = cleaned[begin:finish]
-    return cleaned
 
 
 __all__ = ["parse_resume_pdf", "parse_resume_text"]

@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import textwrap
-
 from langchain_groq import ChatGroq
 
 from ..config import settings
+from ..utils import extract_xml_fragment, parse_skill_entries
 
 
 def evaluate_job_skills(
@@ -20,6 +20,7 @@ def evaluate_job_skills(
     """Return an XML payload of required skills and levels for the given job description."""
 
     prompt = _build_prompt(job_description_text)
+    
     return _invoke_llm(
         prompt,
         llm_client=llm_client,
@@ -28,6 +29,9 @@ def evaluate_job_skills(
         max_tokens=max_tokens,
     )
 
+# ------------------------------------------------------------------
+# Internals
+# ------------------------------------------------------------------
 
 def _build_prompt(job_text: str) -> str:
     few_shot = textwrap.dedent(
@@ -69,7 +73,7 @@ def _build_prompt(job_text: str) -> str:
         - 2 = important but not core
         - 3 = critical / repeatedly emphasized requirement
 
-        Extract up to 25 unique skills (<=3 words each). Prioritize programming languages, ML tools, data platforms, and experimentation skills.
+        Extract up to 25 unique skills (<=3 words each). Prioritize programming languages, ML tools, data platforms, and experimentation skills. Avoid soft skills or generic terms.
         Produce only XML with the schema above.
         """
     ).strip()
@@ -97,23 +101,14 @@ def _invoke_llm(
         ("user", prompt),
     ]
     response = client.invoke(messages)
-    return _extract_xml_fragment(response.content or "")
+    return extract_xml_fragment(response.content or "", "jobSkills")
 
 
-def _extract_xml_fragment(payload: str) -> str:
-    cleaned = payload.strip()
-    if "```" in cleaned:
-        start = cleaned.find("```") + 3
-        candidate = cleaned[start:]
-        if candidate.lower().startswith("xml"):
-            candidate = candidate[3:]
-        end = candidate.find("```")
-        cleaned = candidate[:end].strip() if end != -1 else candidate.strip()
-    if "<jobSkills" in cleaned and "</jobSkills>" in cleaned:
-        begin = cleaned.find("<jobSkills")
-        finish = cleaned.rfind("</jobSkills>") + len("</jobSkills>")
-        cleaned = cleaned[begin:finish]
-    return cleaned
+def job_skills_to_dict(xml_payload: str) -> dict:
+    """Parse the `<jobSkills>` XML into a `{ 'skills': [...] }` structure."""
+
+    skills = parse_skill_entries(xml_payload, root_tag="jobSkills", error_prefix="Job skill XML")
+    return {"skills": skills}
 
 
-__all__ = ["evaluate_job_skills"]
+__all__ = ["evaluate_job_skills", "job_skills_to_dict"]

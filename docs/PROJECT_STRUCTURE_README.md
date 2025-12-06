@@ -31,8 +31,9 @@ backend/app/
 ### Key Services
 
 - `services/resume_parser.py`: Converts PDFs or plaintext into the canonical XML schema via Groq (returned as a raw XML string).
-- `services/resume_skill_eval.py`: Accepts the résumé XML, calls an LLM with a few-shot prompt, and returns a `{ "skills": [{"name": str, "level": int}] }` dictionary with 0-3 mastery levels.
-- `services/job_skill_eval.py`: Reads raw job descriptions and emits `<jobSkills>` XML with 0-3 priority levels per skill (useful for gap comparisons).
+- `services/resume_skill_eval.py`: Accepts the résumé XML, calls an LLM with a few-shot prompt, and returns a `{ "skills": [{"name": str, "level": int}] }` dictionary with 0-3 mastery levels. It can also take job-required skill targets so the returned names/ordering match the job description (missing résumé evidence is scored as `0`).
+- `services/job_skill_eval.py`: Reads raw job descriptions and emits `<jobSkills>` XML with 0-3 priority levels per skill (useful for gap comparisons). Use `job_skills_to_dict` when you need the parsed `{ "skills": [...] }` structure for downstream agents.
+- `services/skill_gap_eval.py`: Consumes the aligned job/resume skill dictionaries and emits a `<skillGaps>` XML payload with `requiredLevel`, `currentLevel`, and the computed `gap` for each skill.
 - Future modules (`skill_extractor.py`, `gap_analyzer.py`, etc.) belong in `services/` as they handle a single domain task.
 
 ### Workflow Layer
