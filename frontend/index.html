@@ -6,20 +6,21 @@
   <title>Resume Readiness</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #111827;
-      --accent: #22d3ee;
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --border: #1f2937;
-      --error: #f87171;
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --accent: #7fb8d1;
+      --accent-2: #f7c8e0;
+      --text: #2b3444;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --error: #d1495b;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at 20% 20%, rgba(34,211,238,0.15), transparent 25%),
-                  radial-gradient(circle at 80% 0%, rgba(129,140,248,0.12), transparent 25%),
+      background: radial-gradient(circle at 20% 20%, rgba(127,184,209,0.25), transparent 30%),
+                  radial-gradient(circle at 80% 10%, rgba(247,200,224,0.22), transparent 28%),
                   var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -28,53 +29,74 @@
       padding: 32px 16px;
     }
     .shell {
-      width: min(980px, 100%);
+      width: min(1080px, 100%);
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(43, 52, 68, 0.12);
       padding: 28px;
     }
     h1 { margin: 0 0 6px; font-weight: 700; letter-spacing: -0.02em; }
     .muted { color: var(--muted); margin: 0 0 20px; }
-    label { display: block; font-weight: 600; margin: 14px 0 6px; }
+    label { display: block; font-weight: 600; margin: 10px 0 6px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 12px 0 8px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(127,184,209,0.08), rgba(247,200,224,0.08));
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+    }
     textarea, input[type="file"] {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #0b1220;
+      border-radius: 12px;
+      background: #f9fafb;
       color: var(--text);
       padding: 12px;
       font-size: 15px;
-      transition: border-color 120ms ease;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+      flex: 1;
     }
-    textarea:focus, input[type="file"]:focus { outline: none; border-color: var(--accent); }
+    textarea:focus, input[type="file"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(127,184,209,0.25);
+    }
     button {
       margin-top: 18px;
-      background: var(--accent);
-      color: #0b1220;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #1f2a36;
       border: none;
       padding: 12px 16px;
-      border-radius: 10px;
+      border-radius: 12px;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 120ms ease, box-shadow 120ms ease;
+      transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
       width: 100%;
     }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 25px rgba(34,211,238,0.25); }
+    button:disabled { opacity: 0.65; cursor: not-allowed; }
+    button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(127,184,209,0.35); filter: brightness(1.03); }
     pre {
-      background: #0b1220;
+      background: #f9fafb;
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 14px;
       overflow: auto;
       white-space: pre-wrap;
       word-break: break-word;
       font-size: 14px;
       line-height: 1.5;
+      min-height: 120px;
     }
-    .status { margin-top: 14px; font-weight: 600; }
+    .status { margin-top: 12px; font-weight: 600; }
     .error { color: var(--error); }
   </style>
 </head>
@@ -83,11 +105,16 @@
     <h1>Resume Readiness Engine</h1>
     <p class="muted">Upload a PDF résumé and paste a job description. The backend will analyze and return a study plan.</p>
 
-    <label for="resume">Résumé PDF</label>
-    <input type="file" id="resume" accept="application/pdf" />
-
-    <label for="jd">Job description</label>
-    <textarea id="jd" rows="10" placeholder="Paste the job description text here"></textarea>
+    <div class="grid">
+      <div class="card">
+        <label for="resume">Résumé PDF</label>
+        <input type="file" id="resume" accept="application/pdf" />
+      </div>
+      <div class="card">
+        <label for="jd">Job description</label>
+        <textarea id="jd" rows="8" placeholder="Paste the job description text here"></textarea>
+      </div>
+    </div>
 
     <button id="submit">Generate study plan</button>
     <div id="status" class="status"></div>
