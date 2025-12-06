@@ -2,10 +2,17 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from backend.app.workflow import WorkflowArtifacts, analyze_inputs
 
 
-def run_job_readiness_engine_orchestrator(resume_pdf_path: str, job_description: str) -> str:
+def run_job_readiness_engine_orchestrator(
+    resume_pdf_path: str,
+    job_description: str,
+    *,
+    plan_output_path: str | Path | None = "study_plan.md",
+) -> str:
     """Execute the full workflow via the workflow orchestrator."""
 
     print("✨ Starting Job Readiness Intelligence Engine Workflow...")
@@ -13,6 +20,7 @@ def run_job_readiness_engine_orchestrator(resume_pdf_path: str, job_description:
         artifacts: WorkflowArtifacts = analyze_inputs(
             resume_pdf_path=resume_pdf_path,
             job_description_text=job_description,
+            plan_output_path=plan_output_path,
         )
     except Exception as exc:  # pragma: no cover - CLI helper
         print(f"Workflow failed: {exc}")
@@ -25,6 +33,8 @@ def run_job_readiness_engine_orchestrator(resume_pdf_path: str, job_description:
     print(f"Gap XML length: {len(artifacts.skill_gap_xml)} characters")
     if artifacts.study_plan:
         print("Study plan generated successfully.\n")
+        if artifacts.plan_path:
+            print(f"Study plan saved to: {artifacts.plan_path}\n")
         return artifacts.study_plan
     return "Workflow completed but no study plan was produced."
 
@@ -74,7 +84,8 @@ if __name__ == "__main__":  # pragma: no cover - CLI entrypoint
     Strong communication skills and the ability to effectively express even complicated methods and results to a broad, often non-technical, audience 
 
     """
-    final_output = run_job_readiness_engine_orchestrator(RESUME_PDF_PATH, JOB_DESCRIPTION_TEXT)
+    final_output = run_job_readiness_engine_orchestrator(RESUME_PDF_PATH, JOB_DESCRIPTION_TEXT,
+                                                         plan_output_path="/Users/alexandresepulvedadedietrich/Documents/Columbia/Fall_Term/AI_eng_apps/Resume-Readiness-Intelligence-Engine/demo/study_plan.md")
     print("\n==============================================")
     print("🚀 FINAL PERSONALIZED STUDY PLAN OUTPUT:")
     print("==============================================")

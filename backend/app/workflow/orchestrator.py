@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from ..services import (
@@ -27,6 +28,7 @@ class WorkflowArtifacts:
     resume_skills: list[SkillDict]
     skill_gap_xml: str
     study_plan: str | None = None
+    plan_path: str | None = None
 
 
 def analyze_inputs(
@@ -35,8 +37,13 @@ def analyze_inputs(
     job_description_text: str,
     rag_chain: Any | None = None,
     fail_on_rag_error: bool = False,
+    plan_output_path: str | Path | None = None,
 ) -> WorkflowArtifacts:
-    """Return the parsed résumé, skill scores, and optional study plan."""
+    """Return the parsed résumé, skill scores, and optional study plan.
+
+    When ``plan_output_path`` is provided and a study plan exists, it is written
+    to disk as Markdown and the saved path is returned in ``plan_path``.
+    """
 
     if not job_description_text:
         raise ValueError("job_description_text must be provided for analysis.")
@@ -56,6 +63,7 @@ def analyze_inputs(
 
     rag = rag_chain if rag_chain is not None else default_rag_chain
     study_plan: str | None
+    plan_path: str | None = None
 
     if rag is None:
         if fail_on_rag_error:
@@ -75,6 +83,14 @@ def analyze_inputs(
                 raise
             study_plan = _rag_error_message(f"RAG retrieval failed: {exc}")
 
+    if study_plan and plan_output_path:
+        try:
+            plan_path = _persist_plan(study_plan, plan_output_path)
+        except Exception as exc:  # pragma: no cover - defensive path
+            if fail_on_rag_error:
+                raise
+            print(f"Warning: could not write study plan to {plan_output_path}: {exc}")
+
     return WorkflowArtifacts(
         resume_xml=resume_xml,
         job_skill_xml=job_skill_xml,
@@ -82,6 +98,7 @@ def analyze_inputs(
         resume_skills=resume_skills,
         skill_gap_xml=skill_gap_xml,
         study_plan=study_plan,
+        plan_path=plan_path,
     )
 
 
@@ -92,6 +109,15 @@ def _rag_error_message(reason: str) -> str:
         "The RAG agent could not generate a study plan at this time. "
         f"Reason: {reason}"
     )
+
+
+def _persist_plan(plan_text: str, path_like: str | Path) -> str:
+    """Write the study plan to disk and return the absolute path."""
+
+    path = Path(path_like).expanduser()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(plan_text, encoding="utf-8")
+    return str(path.resolve())
 
 
 __all__ = ["WorkflowArtifacts", "analyze_inputs"]
