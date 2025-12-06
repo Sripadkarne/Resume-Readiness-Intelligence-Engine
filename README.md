@@ -48,6 +48,7 @@ Requirements: Python 3.11+ and a Groq API key.
 - `POST /analyze` — accepts JSON `{ resume_pdf_path, job_description }`  
 - `POST /analyze-upload` — multipart form (`resume_pdf`, `job_description`) used by the frontend
 
+<<<<<<< HEAD
 ## Frontend
 
 Static HTML/CSS/JS (`frontend/index.html`), no build step. Fetches `POST /analyze-upload`. Views: Study Plan, Structured, Raw, Reasoning.
@@ -67,6 +68,164 @@ requirements.txt
 ```
 
 ## Deliverables
+=======
+**Planned expansion:**
+
+* Software Engineering
+
+* Finance
+
+* Mechanical Engineering
+
+**Additional technical and non-technical career paths**
+
+* Both entry-level and senior candidates
+
+## **MVP Features**
+
+**1. Skill Gap Detection**
+
+Users upload their resume or answer domain-specific questions.
+
+* Our system:
+
+  * Analyzes skills, tools, and domain knowledge
+
+  * Compares them to real job requirements
+
+  * Returns structured “knowledge gap” outputs
+
+**2. RAG-Based Knowledge Retrieval**
+
+The RAG database is built from credible sources:
+
+* ML & Statistics textbooks
+
+* Ace the Data Science Interview
+
+* Applied DS/ML/AI resources
+
+* Articles, videos, PDFs, and tutorials (Domain Specific)
+
+The engine retrieves explanations, examples, and runnable insights—not generic fluff.
+
+**3. Personalized Study Plans**
+
+For every knowledge gap, the system generates:
+
+* Sequenced study modules from videos, articles, and textbook excerpts
+
+* Timelines and difficulty progression
+
+## **High-Level Architecture**
+
+**Frontend:**
+Built using HTML and JavaScript.
+Communicates with backend through Fast API calls.
+
+**Backend:**
+
+* Fast API, Python
+
+* Inference - Groq
+
+* Model - llama-3.1-8b-instant
+
+**RAG Pipeline:**
+
+* Textbook into markdown using Cloud GPUs
+
+* Chunking & preprocessing by header
+
+* Sentence transformer embedding (all-MiniLM-L6-v2)
+
+* Storage in vector DB (ChromaDB)
+
+* Langchain
+
+* Retrieval (Precision(k=3)) + Generation 
+
+Repository Structure (Proposed)
+
+```
+resumejobhelpai/
+│── backend/
+│   ├── main.py               
+│   ├── rag/
+│   │   ├── ingest.py
+│   │   ├── chunking.py
+│   │   ├── embed.py
+│   │   ├── retrieve.py
+│   ├── agents/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│
+│── frontend              
+│
+│── docs/
+│   ├── architecture.md
+│   ├── api.md
+│   ├── infra.md
+│
+└── README.md
+```
+
+Agentic Workflow 
+
+```
+Agent 1 [PDF converter]
+Input: Resume
+Output: XML of resume
+
+Goes to:
+
+
+Agent 2[Job description Skills]
+Input: Job description
+Output: Skill and proficiency requirements for the specific job
+
+Goes to:
+
+Agent 3[Resume Skills]
+Input: XML of resume
+Output: Skill and proficiency requirments with respect to the skills outlined from agent 2
+
+
+Goes to:
+
+
+Python function to get the gaps
+Input: Skills 
+Output: Gaps
+
+Goes to:
+
+
+Agent 4[RAG + Study Plan]
+Input: Skill gaps
+Output: Study plan to get proficient in the necessary skills
+
+
+ ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> 180718058884418c4348910dd69b4a0700e895ef
 
 - Working prototype (steps above; Makefile included)
 - Product brief: `docs/product_brief.md`
