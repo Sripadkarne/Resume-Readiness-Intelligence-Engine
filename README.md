@@ -6,7 +6,7 @@ Developed by:
 
 * Sripad Karne 
 * Pranav Kandula 
-* Alexandre Edouard Eleuthe Sepulveda de Dietrich
+* Alexandre Edouard Eleuthère Sepúlveda de Dietrich
 
 ## **Problem Statement**
 
