@@ -1,0 +1,131 @@
+<resume>
+  <skills>
+    <category name="Technical Skills">
+      <skill>Python</skill>
+      <skill>SQL</skill>
+      <skill>R</skill>
+      <skill>Matlab</skill>
+      <skill>PyTorch</skill>
+      <skill>TensorFlow</skill>
+      <skill>AWS</skill>
+      <skill>GCP</skill>
+      <skill>Snowflake</skill>
+      <skill>Databricks</skill>
+      <skill>NLP</skill>
+      <skill>LLM</skill>
+      <skill>Docker</skill>
+      <skill>Apache Spark</skill>
+      <skill>Pandas</skill>
+      <skill>NumPy</skill>
+      <skill>Scikit-learn</skill>
+      <skill>XGboost</skill>
+      <skill>RandomForest</skill>
+      <skill>PySpark</skill>
+      <skill>Excel</skill>
+      <skill>Tableau</skill>
+      <skill>Git</skill>
+      <skill>Linux</skill>
+      <skill>LangChain</skill>
+    </category>
+    <category name="Frameworks &amp; Libraries">
+      <skill>AWS</skill>
+      <skill>GCP</skill>
+      <skill>Snowflake</skill>
+      <skill>Databricks</skill>
+      <skill>NLP</skill>
+      <skill>LLM</skill>
+      <skill>Docker</skill>
+      <skill>Apache Spark</skill>
+    </category>
+    <category name="Relevant Coursework">
+      <skill>Advanced Machine Learning Methods</skill>
+      <skill>Modeling and Data Analysis</skill>
+      <skill>AI Algorithms</skill>
+      <skill>AI Engineering</skill>
+      <skill>Algorithms for Data Science</skill>
+      <skill>Neural Networks and Deep Learning</skill>
+      <skill>Exploratory Data Analysis and Visualization</skill>
+      <skill>Business Analytics</skill>
+    </category>
+  </skills>
+  <experience>
+    <job>
+      <position>Data Science Intern</position>
+      <company>UC San Diego Health</company>
+      <description>
+        <bullet>Supporting clinical research at UC San Diego Health by processing and analyzing large-scale EHR datasets (&gt;10 million patients) on Databricks and GCP using Spark SQL, helping integrate data across hospitals using standardized clinical terminologies (ICD-10, CPT, etc.)</bullet>
+        <bullet>Conducting advanced exploratory data analysis in Python to identify key clinical and demographic risk factors for chronic conditions such as lung cancer and CKD, informing early detection and personalized risk stratification</bullet>
+        <bullet>Developing and optimizing machine learning models, such as XGBoost and Random Forest, to model disease progression and generate individualized risk trajectories, contributing to an upcoming manuscript on ML-driven CKD prediction</bullet>
+        <bullet>Designing visualizations and presenting data-driven insights to key partners, including LifeGuard Health Networks and Stand Up To Cancer, to support clinical research and decision-making initiatives</bullet>
+      </description>
+    </job>
+    <job>
+      <position>Instructional Assistant for Advanced Machine Learning Methods</position>
+      <company>University of California, San Diego</company>
+      <description>
+        <bullet>Conducted weekly office hours and sessions to deepen student understanding of ML methods, from regression and classification to Generative Modeling, Transformers, and LLM models</bullet>
+        <bullet>Provided individualized guidance on complex topics, offering debugging support, and clarifying assignments</bullet>
+      </description>
+    </job>
+    <job>
+      <position>Computer Vision Intern</position>
+      <company>Machine Learning, Perception &amp; Cognition Lab</company>
+      <description>
+        <bullet>Designed a novel controllable image generation architecture, leveraging cutting-edge Diffusion Transformers and state-of-the-art deep learning models</bullet>
+        <bullet>Integrated LLMs into data pipelines for processing multi-terabyte video datasets, using them to extract and refine open-vocabulary object prompts and dynamically guide bounding box detection at scale</bullet>
+        <bullet>Conducted in-depth model testing and evaluation, applying various performance metrics and validation techniques to ensure the robustness, accuracy, and efficiency of the model</bullet>
+      </description>
+    </job>
+    <job>
+      <position>Data Analyst Intern</position>
+      <company>Neural Engineering and Translation Labs</company>
+      <description>
+        <bullet>Developed and implemented machine learning models to analyze behavioral and questionnaire data, generating personalized recovery plans for patients displaying signs of depression and other mental health conditions</bullet>
+        <bullet>Contributed to the design and implementation of efficient data pipelines to streamline data flow and enhance data accessibility for the research teams, as well as doing rigorous data exploration, cleansing, and preprocessing to ensure data integrity</bullet>
+      </description>
+    </job>
+  </experience>
+  <projects>
+    <project>
+      <name>Machine learning–derived risk trajectory of chronic kidney disease and clinical implications after disease onset</name>
+      <context>Publication</context>
+      <description>
+        <bullet>Conducted advanced exploratory data analysis in Python to identify key clinical and demographic risk factors for chronic conditions such as lung cancer and CKD, informing early detection and personalized risk stratification</bullet>
+        <bullet>Developing and optimizing machine learning models, such as XGBoost and Random Forest, to model disease progression and generate individualized risk trajectories, contributing to an upcoming manuscript on ML-driven CKD prediction</bullet>
+      </description>
+    </project>
+  </projects>
+  <education>
+    <entry>
+      <degree>Master of Science (M.S.) in Data Science</degree>
+      <institution>Columbia University</institution>
+      <courses>
+        <course>Advanced Machine Learning Methods</course>
+        <course>Modeling and Data Analysis</course>
+        <course>AI Algorithms</course>
+        <course>AI Engineering</course>
+        <course>Algorithms for Data Science</course>
+        <course>Neural Networks and Deep Learning</course>
+        <course>Exploratory Data Analysis and Visualization</course>
+        <course>Business Analytics</course>
+      </courses>
+    </entry>
+    <entry>
+      <degree>Bachelor of Science (B.S) in Cognitive Science w/ specialization in Machine Learning</degree>
+      <institution>University of California, San Diego</institution>
+      <courses>
+        <course>Advanced Machine Learning Methods</course>
+        <course>Modeling and Data Analysis</course>
+        <course>AI Algorithms</course>
+        <course>AI Engineering</course>
+        <course>Algorithms for Data Science</course>
+        <course>Neural Networks and Deep Learning</course>
+        <course>Exploratory Data Analysis and Visualization</course>
+        <course>Business Analytics</course>
+      </courses>
+    </entry>
+  </education>
+  <other>
+    <line>Hwang, H., Yoon, S., Karne, S., Boussina, A., &amp; Sitapati, A. (in progress). Machine learning–derived risk trajectory of chronic kidney disease and clinical implications after disease onset.</line>
+  </other>
+</resume>

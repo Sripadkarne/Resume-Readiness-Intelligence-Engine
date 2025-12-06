@@ -2,25 +2,55 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 
 from backend.app.workflow import WorkflowArtifacts, analyze_inputs
 
 
+def _make_experiment_dir(base_dir: str | Path | None) -> Path:
+    """Create a timestamped experiment directory for storing artifacts."""
+
+    root = Path(base_dir).expanduser() if base_dir else Path("demo/experiments")
+    ts_dir = root / datetime.now().strftime("%Y%m%d_%H%M%S")
+    ts_dir.mkdir(parents=True, exist_ok=True)
+    return ts_dir
+
+
+def _dump_experiment_artifacts(artifacts: WorkflowArtifacts, run_dir: Path) -> None:
+    """Persist XML artifacts and study plan (if any) for experiment tracking."""
+
+    (run_dir / "resume.xml").write_text(artifacts.resume_xml, encoding="utf-8")
+    (run_dir / "job_skills.xml").write_text(artifacts.job_skill_xml, encoding="utf-8")
+    (run_dir / "skill_gaps.xml").write_text(artifacts.skill_gap_xml, encoding="utf-8")
+    if artifacts.study_plan:
+        plan_target = run_dir / "study_plan.md"
+        plan_target.write_text(artifacts.study_plan, encoding="utf-8")
+
 def run_job_readiness_engine_orchestrator(
     resume_pdf_path: str,
     job_description: str,
     *,
-    plan_output_path: str | Path | None = "study_plan.md",
+    plan_output_path: str | Path | None = None,
+    experiment_dir: str | Path | None = "demo/experiments",
 ) -> str:
-    """Execute the full workflow via the workflow orchestrator."""
+    """Execute the full workflow via the workflow orchestrator.
+
+    When ``experiment_dir`` is provided (default: demo/experiments), artifacts are
+    saved to a timestamped subfolder including the XML outputs and the study plan.
+    """
+
+    run_dir: Path | None = _make_experiment_dir(experiment_dir) if experiment_dir else None
+    plan_path = plan_output_path
+    if plan_path is None:
+        plan_path = run_dir / "study_plan.md" if run_dir else Path("study_plan.md")
 
     print("✨ Starting Job Readiness Intelligence Engine Workflow...")
     try:
         artifacts: WorkflowArtifacts = analyze_inputs(
             resume_pdf_path=resume_pdf_path,
             job_description_text=job_description,
-            plan_output_path=plan_output_path,
+            plan_output_path=plan_path,
         )
     except Exception as exc:  # pragma: no cover - CLI helper
         print(f"Workflow failed: {exc}")
@@ -31,6 +61,9 @@ def run_job_readiness_engine_orchestrator(
     print(f"Job skills extracted: {len(artifacts.job_skills)}")
     print(f"Resume skills scored: {len(artifacts.resume_skills)}")
     print(f"Gap XML length: {len(artifacts.skill_gap_xml)} characters")
+    if run_dir:
+        _dump_experiment_artifacts(artifacts, run_dir)
+        print(f"Experiment artifacts saved under: {run_dir}")
     if artifacts.study_plan:
         print("Study plan generated successfully.\n")
         if artifacts.plan_path:
@@ -149,8 +182,10 @@ if __name__ == "__main__":  # pragma: no cover - CLI entrypoint
 
     # We are an equal opportunity employer and participate in E-Verify in states where required.
     # """
-    final_output = run_job_readiness_engine_orchestrator(RESUME_PDF_PATH, JOB_DESCRIPTION_TEXT,
-                                                         plan_output_path="/Users/alexandresepulvedadedietrich/Documents/Columbia/Fall_Term/AI_eng_apps/Resume-Readiness-Intelligence-Engine/demo/study_plan.md")
+    final_output = run_job_readiness_engine_orchestrator(
+        RESUME_PDF_PATH,
+        JOB_DESCRIPTION_TEXT,
+    )
     print("\n==============================================")
     print("🚀 FINAL PERSONALIZED STUDY PLAN OUTPUT:")
     print("==============================================")
