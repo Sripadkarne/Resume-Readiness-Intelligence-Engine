@@ -1,126 +1,80 @@
-# running_final.py (Final Orchestrator Script)
+"""CLI wrapper around the workflow orchestrator."""
 
-import os
-from typing import List, Dict, Any
+from __future__ import annotations
 
-# AGENT 1: PDF to XML Converter
-# Assumes this function takes a file path and returns the XML string.
-from backend.app.services.resume_parser import parse_resume_pdf 
-
-# AGENT 2.a: Skill Scorer for Resume
-# Assumes this function takes the XML string and returns a dict with scored skills.
-from backend.app.services.resume_skill_eval import evaluate_resume_skills 
-
-#Agent 2.b: Skill Scorer for Job
-from backend.app.services.job_skill_eval
-
-
-# --- Import Agent 3 & 4 Components (Placeholders based on context) ---
-# AGENT 3: Skill Gap Finder 
-from backend.app.services.skill_gap_eval
-
-
-# NOTE: This function needs to be created in your project (e.g., backend/agents/skill_gap_finder.py)
-def find_skill_gaps(resume_skills: List[Dict[str, Any]], job_skills: List[Dict[str, Any]]) -> str:
-    """Placeholder for Agent 3 logic: Compares two lists of scored skills to generate a gap summary."""
-    print("  -> (Agent 3 Logic): Comparing resume skills against job requirements...")
-    # Example logic: look for skills in job_skills that are missing or have a low score in resume_skills.
-    # The output is a highly descriptive string for the RAG agent.
-    # e.g., "The user needs to learn advanced PyTorch concepts (level 3 required), focusing on model deployment."
-    return "User needs to upgrade 'Time Series Analysis' from level 1 to level 3, specifically around ARIMA models and forecasting evaluation metrics."
-
-# AGENT 4: RAG Retrieval & Study Plan Generator
-from backend.rag.agent3(RAG_Agent) import rag_chain # Your LCEL RAG chain (Agent 4a: Retrieval)
-
-
-# --- Initial Inputs ---
-# These paths and strings would be dynamically provided by the frontend.
-RESUME_PDF_PATH = "/path/to/user_resume.pdf" 
-JOB_DESCRIPTION_TEXT = (
-    "We require 5+ years experience in Data Science. Key skills: PyTorch (Level 3), "
-    "Advanced Time Series Analysis (Level 3), and Distributed Computing (Spark). "
-    "Familiarity with forecasting evaluation metrics is a must."
-)
-
+from backend.app.workflow import WorkflowArtifacts, analyze_inputs
 
 
 def run_job_readiness_engine_orchestrator(resume_pdf_path: str, job_description: str) -> str:
-    """
-    Executes the 4-agent workflow sequentially for job readiness assessment.
-    """
-    
+    """Execute the full workflow via the workflow orchestrator."""
+
     print("✨ Starting Job Readiness Intelligence Engine Workflow...")
-    
-    # --- 1. AGENT 1: PDF to XML Converter ---
-    print("\n--- 1. Agent 1 (parse_resume_pdf): PDF -> XML ---")
     try:
-        # Calls the function from backend/app/services/resume_parser.py
-        resume_xml = parse_resume_pdf(resume_pdf_path)
-        print("  -> Resume successfully converted to XML format.")
-    except Exception as e:
-        print(f"ERROR in Agent 1: {e}")
-        return "Workflow failed during PDF to XML conversion."
-        
-    # --- 2. AGENT 2: Skill Scorer ---
-    print("\n--- 2. Agent 2 (evaluate_resume_skills): XML -> Scored Skills ---")
-    
-    # 2a. Score skills from the RESUME XML (User's current skills)
-    try:
-        # Calls the function from backend/app/services/resume_skill_eval.py
-        resume_evaluation = evaluate_resume_skills(resume_xml)
-        resume_skills_scored = resume_evaluation.get("skills", [])
-        print(f"  -> Scored {len(resume_skills_scored)} skills from Resume.")
-    except Exception as e:
-        print(f"ERROR in Agent 2 (Resume Scoring): {e}")
-        # In a full app, you might fall back to manual scoring or a simpler LLM approach here.
-        return "Workflow failed during resume skill scoring."
+        artifacts: WorkflowArtifacts = analyze_inputs(
+            resume_pdf_path=resume_pdf_path,
+            job_description_text=job_description,
+        )
+    except Exception as exc:  # pragma: no cover - CLI helper
+        print(f"Workflow failed: {exc}")
+        return "Workflow failed."
 
-    # 2b. Score skills from the JOB DESCRIPTION text (Required skills)
-    try:
-        job_skills_scored = evaluate_job_skills(job_description) 
-        print(f"  -> Extracted {len(job_skills_scored)} required skills from Job Description.")
-    except Exception as e:
-        print(f"ERROR in Agent 2 (JD Scoring): {e}")
-        return "Workflow failed during job description skill scoring."
-        
-    
-    # --- 3. AGENT 3: Skill Gap Finder ---
-    print("\n--- 3. Agent 3 (find_skill_gaps): Skills -> Gap Summary ---")
-    # Compares the two lists generated in Step 2.
-    try:
-        #need to change this 
-        skill_gap_summary = skill_gap_eval(job_skills_scored, resume_skills_scored)
-        print(f"  -> Identified Gap: '{skill_gap_summary[:25]}...'")
-    except Exception as e:
-        print(f"ERROR in Agent 3: {e}")
-        return "Workflow failed during skill gap analysis."
-        
-    
-    # --- 4. AGENT 4: RAG & Study Plan Generator ---
-    print("\n--- 4. Agent 4 (rag_chain / generate_final_study_plan): Gap Summary -> Plan ---")
-    
-    # 4a. RAG Retrieval (Uses your LCEL chain)
-    try:
-        retrieved_context_notes = rag_chain.invoke(skill_gap_summary)
-        if "I apologize, the available learning resources" in retrieved_context_notes:
-            print("  -> RAG identified insufficient resources. Stopping.")
-            return retrieved_context_notes
-        print("  -> RAG Retrieval successful.")
-    except Exception as e:
-        print(f"ERROR in Agent 4 (RAG Retrieval): {e}")
-        return "Workflow failed during RAG retrieval."
-
-    print("\n✅ Workflow Complete! Final Output below.")
-    return final_study_plan
+    print("\n--- Outputs ---")
+    print(f"Resume XML length: {len(artifacts.resume_xml)} characters")
+    print(f"Job skills extracted: {len(artifacts.job_skills)}")
+    print(f"Resume skills scored: {len(artifacts.resume_skills)}")
+    print(f"Gap XML length: {len(artifacts.skill_gap_xml)} characters")
+    if artifacts.study_plan:
+        print("Study plan generated successfully.\n")
+        return artifacts.study_plan
+    return "Workflow completed but no study plan was produced."
 
 
+if __name__ == "__main__":  # pragma: no cover - CLI entrypoint
+    RESUME_PDF_PATH = "/Users/alexandresepulvedadedietrich/Documents/Columbia/Fall_Term/AI_eng_apps/Resume-Readiness-Intelligence-Engine/demo/resume_parsing/Resume_ASDD_CSxCU.pdf"
+    JOB_DESCRIPTION_TEXT = """
+    [url : https://www.linkedin.com/jobs/view/4314428489/?alternateChannel=search&refId=9u3sk8i%2BeQIlSVBrpYxESQ%3D%3D&trackingId=Get6L8t577ywsT%2BWJ1ymUA%3D%3D]
 
+    About the job
+    Kensho is S&P Global’s hub for AI innovation and transformation. With expertise in machine learning, natural language processing, and data discovery, we develop and deploy novel solutions to innovate and drive progress at S&P Global and its customers worldwide. Kensho's solutions and research focus on business and financial generative AI applications, agents, data retrieval APIs, data extraction, and much more.
 
-# --- EXECUTION ---
-if __name__ == "__main__":
-    # NOTE: You must replace RESUME_PDF_PATH with a valid file path for the script to run correctly.
+    At Kensho, we hire talented people and give them the autonomy and support needed to build amazing technology and products. We collaborate using our teammates' diverse perspectives to solve hard problems. Our communication with one another is open, honest, and efficient. We dedicate time and resources to explore new ideas, but always rooted in engineering best practices. As a result, we can innovate rapidly to produce technology that is scalable, robust, and useful.
+
+    Kensho is looking for ML Engineer interns to join the group of Machine Learning Engineers working on developing a cutting-edge GenAI platform, LLM-powered applications, and fundamental AI toolkit solutions such as Kensho Extract. We are looking for talented people who share our passion for bringing robust, scalable, and highly accurate ML solutions to production.
+
+    Are you looking to leverage your teammates' diverse perspectives to solve hard problems? If so, we would love to help you excel here at Kensho. You will be working on a team with experienced engineers and have an opportunity to learn and grow. We take pride in our team-based, tightly-knit startup Kenshin community that provides our employees with a collaborative, communicative environment that allows us to tackle the biggest challenges in data. In addition, as an intern you will have the opportunity to attend technical and non-technical discussions as well as company wide social events.
+
+    We value in-person collaboration, therefore interns are required to work out of the Cambridge HQ or our New York City office!
+
+    Technologies & Tools We Use
+
+    Agentic systems: Agentic Orchestration, Deep Research, Information Retrieval, LLM code generation, LLM tool utilization, Multi-turn Conversationality, Textual RAG systems
+    Core ML/AI: DGL, GNNs, HuggingFace, LangGraph, LightGBM, PyTorch, SKLearn, Transformers, XGBoost
+    Data Exploration and Visualization: Jupyter, Matplotlib, Pandas, Weights & Biases, Gradio, Streamlit
+    Data Management and Storage: AWS Athena, DVC, LabelBox, OpenSearch, Postgres/Pgvector, S3, SQLite
+    Deployment & MLOps: Arize, AWS, Amazon EKS, DeepSpeed, Containerization, Grafana, Jenkins, LangFuse, LiteLLM, Ray, vLLM
+
+    What You’ll Do
+
+    Apply advanced NLP techniques to extract insights from large proprietary unstructured and structured datasets
+    Design, build, and maintain scalable production-ready ML systems
+    Participate in the ML model lifecycle, from problem framing to training, deployment, and monitoring in production
+    Partner with our ML Operations team to deliver solutions for automating the ML model lifecycle, from technical design to implementation
+    Work in a cross-functional team of ML Engineers, Product Managers, Designers, Backend & Frontend Engineers who are passionate about delivering exceptional products
+
+    What We Look For
+
+    Outstanding people come from all different backgrounds, and we’re always interested in meeting talented people! Therefore, we do not require any particular credential or experience. If our work seems exciting to you, and you feel that you could excel in this position, we’d love to hear from you. That said, most successful candidates will fit the following profile, which reflects both our technical needs and team culture:
+
+    Pursuing a bachelor's degree or higher with relevant classwork or internships in Machine Learning
+    Experience in designing and iterating on agentic systems, understanding user interactions, and evaluating agent performance to enhance user experiences.
+    Experience with advanced machine learning methods
+    Statistical knowledge, intuition, and experience modeling real data
+    Expertise in Python and Python-based ML frameworks (e.g.,LangGraph, Pydantic AI, PyTorch)
+    Demonstrated effective coding, documentation, and communication habits
+    Strong communication skills and the ability to effectively express even complicated methods and results to a broad, often non-technical, audience 
+
+    """
     final_output = run_job_readiness_engine_orchestrator(RESUME_PDF_PATH, JOB_DESCRIPTION_TEXT)
-    
     print("\n==============================================")
     print("🚀 FINAL PERSONALIZED STUDY PLAN OUTPUT:")
     print("==============================================")

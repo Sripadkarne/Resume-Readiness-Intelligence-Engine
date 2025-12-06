@@ -7,9 +7,11 @@ RAG, study plan) are wired in.
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from dataclasses import asdict
 
-from ..workflow import analyze_inputs
+from fastapi import FastAPI, HTTPException
+
+from ..workflow import WorkflowArtifacts, analyze_inputs
 
 app = FastAPI(title="Resume Readiness Intelligence Engine")
 
@@ -31,12 +33,13 @@ def analyze_resume(payload: dict[str, str]) -> dict[str, object]:
     - `job_title` / `company` (optional): Overrides when the JD lacks metadata.
     """
 
-    resume_xml = analyze_inputs(
+    job_description = payload.get("job_description")
+    if not job_description:
+        raise HTTPException(status_code=422, detail="job_description is required.")
+
+    result: WorkflowArtifacts = analyze_inputs(
         resume_pdf_path=payload["resume_pdf_path"],
-        job_description_text=payload.get("job_description"),
+        job_description_text=job_description,
     )
 
-    # Downstream: pass these objects into skill extraction, gap analysis, etc.
-    return {
-        "resume_xml": resume_xml,
-    }
+    return asdict(result)

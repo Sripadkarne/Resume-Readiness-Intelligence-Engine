@@ -169,6 +169,7 @@ def _resolve_llm(
         model=model or settings.resume_parser_model,
         temperature=settings.resume_parser_temperature if temperature is None else temperature,
         max_tokens=max_tokens or settings.resume_parser_max_tokens,
+        groq_api_key=settings.groq_api_key,
         timeout=None,
         max_retries=2,
     )

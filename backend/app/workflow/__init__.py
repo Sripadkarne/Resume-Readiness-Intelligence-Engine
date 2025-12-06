@@ -1,5 +1,5 @@
 """Workflow coordination utilities."""
 
-from .orchestrator import analyze_inputs
+from .orchestrator import WorkflowArtifacts, analyze_inputs
 
-__all__ = ["analyze_inputs"]
+__all__ = ["analyze_inputs", "WorkflowArtifacts"]

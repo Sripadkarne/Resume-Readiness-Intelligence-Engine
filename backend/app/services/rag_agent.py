@@ -1,44 +1,51 @@
-import os
-from dotenv import load_dotenv
-from langchain_groq import ChatGroq  
+"""RAG agent wiring that mirrors other backend services."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from langchain_core.documents import Document
+from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.documents import Document
-from langchain_community.vectorstores import Chroma
+from langchain_groq import ChatGroq
 from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
 
-load_dotenv()
-GROQ_API_KEY = os.getenv("API_KEY")
-GROQ_MODEL_NAME = "llama-3.1-8b-instant" 
-#CHROMA_DIR = '/Users/pranavkandula/Desktop/School/Fall 2025/AI-Engineering/Final_Project/Resume-Readiness-Intelligence-Engine/VectorDB'
+from backend.app.config import settings
 
-home_dir = Path.home() 
-project_directory = "Resume-Readiness-Intelligence-Engine"
-vector_db_folder = "VectorDB"
-CHROMA_DIR = home_dir / project_directory / vector_db_folder
-CHROMA_DIR = str(CHROMA_DIR) # Convert back to string if the library requires it
+GROQ_MODEL_NAME = settings.rag_model
+COLLECTION_NAME = settings.rag_collection_name
+EMBEDDING_MODEL_NAME = settings.rag_embedding_model
+EMBEDDING_K = settings.rag_top_k
+CHROMA_DIR = settings.rag_persist_dir or str(
+    Path.home() / "Resume-Readiness-Intelligence-Engine" / "VectorDB"
+)
 
-COLLECTION_NAME = "RAG_DB_Learning_Resources"
-EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
 
 # Vector Store (Your existing Chroma database)
 vectorstore = Chroma(
     collection_name=COLLECTION_NAME,
     embedding_function=embeddings,
-    persist_directory=CHROMA_DIR
+    persist_directory=CHROMA_DIR,
 )
-retriever = vectorstore.as_retriever(k=3) # Retrieve the top 3 relevant chunks
+retriever = vectorstore.as_retriever(k=EMBEDDING_K)  # Retrieve the top k relevant chunks
 
 # LLM (The native LangChain wrapper for Groq)
-llm = ChatGroq(model=GROQ_MODEL_NAME, temperature=0.1, groq_api_key=GROQ_API_KEY)
+llm = ChatGroq(
+    model=GROQ_MODEL_NAME,
+    temperature=settings.rag_temperature,
+    groq_api_key=settings.groq_api_key,
+)
+
 
 def format_docs(docs: list[Document]) -> str:
     """Concatenates retrieved documents into a single context string."""
     return "\n\n---\n\n".join(doc.page_content for doc in docs)
 
-# 3. AGENT 3 CUSTOM PROMPT TEMPLATE (Same great prompt)
+
+# 3. AGENT 3 CUSTOM PROMPT TEMPLATE (Same as retreival.py)
 AGENT_3_PROMPT_TEMPLATE = """
 Role:
 You are an expert AI Career Coach and Tutor. Your task is to generate **curated, actionable notes** for the user to close a specific skill gap, using ONLY the provided learning materials.
@@ -62,32 +69,30 @@ Instructions:
 prompt = ChatPromptTemplate.from_template(AGENT_3_PROMPT_TEMPLATE)
 
 # 5. CONSTRUCT THE RAG CHAIN (LCEL)
-# 
 rag_chain = (
-    # Step 1: Prepare the inputs
-    # 'context': Runs the retriever, then formats the output documents.
-    # 'question': Passes the user's input (skill gap summary) through unchanged.
-    {"context": retriever | format_docs, 
-     "question": RunnablePassthrough()}
-    # Step 2: Combine inputs into the ChatPromptTemplate
+    {
+        "context": retriever | format_docs,
+        "question": RunnablePassthrough(),
+    }
     | prompt
-    # Step 3: Pass the prompt to the ChatGroq LLM
     | llm
-    # Step 4: Convert the LLM's object output to a simple string
     | StrOutputParser()
 )
 
-# --- EXAMPLE USAGE ---
+
+def generate_study_plan(skill_gap_summary: str) -> str:
+    """Invoke the RAG chain to create a study plan."""
+
+    return rag_chain.invoke(skill_gap_summary)
+
+
 if __name__ == "__main__":
-    # Example input from Agent 2
     skill_gap_input = "User is a beginner in GGPlot but requires intermediate skills. Also say where you pulled the resources from"
-    
+
     print(f"**Agent 3 Input (Skill Gap):** {skill_gap_input}\n")
-    
-    # Run the chain
-    # The skill_gap_input is passed as the 'question' via RunnablePassthrough()
-    final_output = rag_chain.invoke(skill_gap_input)
-    
+
+    final_output = generate_study_plan(skill_gap_input)
+
     print("\n==============================================")
     print("🤖 Agent 3 (Grok RAG) Final Output:")
     print("==============================================")
