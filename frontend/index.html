@@ -301,6 +301,37 @@
       color: var(--muted);
     }
 
+    .view-toggle {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .view-toggle label {
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    select {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 14px;
+      background: #ffffff;
+      color: var(--text);
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,183,224,0.18);
+    }
+
     .error {
       color: var(--error);
     }
@@ -407,6 +438,13 @@
     <button id="submit">
       Generate Study Plan
     </button>
+    <div class="view-toggle">
+      <label for="view-select">View:</label>
+      <select id="view-select">
+        <option value="rendered" selected>Study Plan</option>
+        <option value="raw">Raw Output (markdown)</option>
+      </select>
+    </div>
     <div id="status" class="status"></div>
 
     <h3>Study Plan</h3>
@@ -419,6 +457,8 @@
     const planEl = document.getElementById("plan");
     const resumeInput = document.getElementById("resume-input");
     const jdInput = document.getElementById("jd-textarea");
+    const viewSelect = document.getElementById("view-select");
+    let lastRawPlan = "";
 
     const API_URL = "http://localhost:8000/analyze-upload";
 
@@ -488,7 +528,8 @@
         const res = await fetch(API_URL, { method: "POST", body: form });
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "Request failed");
-        planEl.innerHTML = renderMarkdown(data.study_plan || "");
+        lastRawPlan = data.study_plan || "";
+        renderView();
         setStatus("Done");
       } catch (err) {
         console.error(err);
@@ -497,6 +538,21 @@
         submitBtn.disabled = false;
       }
     });
+
+    function renderView() {
+      const mode = viewSelect.value;
+      if (!lastRawPlan) {
+        planEl.textContent = "(No study plan returned)";
+        return;
+      }
+      if (mode === "raw") {
+        planEl.textContent = trimPreface(lastRawPlan);
+      } else {
+        planEl.innerHTML = renderMarkdown(lastRawPlan);
+      }
+    }
+
+    viewSelect.addEventListener("change", renderView);
   </script>
 </body>
 </html>
