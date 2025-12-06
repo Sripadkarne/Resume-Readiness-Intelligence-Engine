@@ -24,8 +24,6 @@ A Job Readiness Intelligence Engine that evaluates a user's current skills, dete
 
 * Machine Learning Engineer candidates
 
-* AI Engineer candidates
-
 **Planned expansion:**
 
 * Software Engineering
@@ -62,7 +60,7 @@ The RAG database is built from credible sources:
 
 * Applied DS/ML/AI resources
 
-* Curated articles, videos, PDFs, and tutorials
+* Articles, videos, PDFs, and tutorials (Domain Specific)
 
 The engine retrieves explanations, examples, and runnable insights—not generic fluff.
 
@@ -70,53 +68,37 @@ The engine retrieves explanations, examples, and runnable insights—not generic
 
 For every knowledge gap, the system generates:
 
-* Sequenced study modules
-
-* Videos + articles + textbook excerpts
-
-* Hands-on exercises
+* Sequenced study modules from videos, articles, and textbook excerpts
 
 * Timelines and difficulty progression
-
-**4. Practice Question Generator**
-
-We use agentic AI to produce:
-
-* Targeted practice questions
-
-* Increasing difficulty levels
-
-* Answer explanations based on the RAG knowledge base
 
 ## **High-Level Architecture**
 
 **Frontend:**
-Built using Lovable (React-like UI).
-Communicates with backend through REST API calls.
+Built using HTML and JavaScript.
+Communicates with backend through Fast API calls.
 
-**Backend (GCP):**
+**Backend:**
 
-* Cloud Run – hosts API server (FastAPI / Python)
+* Fast API, Python
 
-* Vertex AI – embeddings, RAG retrieval, LLM generation
+* Inference - Groq
 
-* Cloud Storage – raw documents for ingestion
-
-* Firestore – user sessions, progress, study plans
-
-* Cloud Functions (optional) – lightweight utilities
+* Model - llama-3.1-8b-instant
 
 **RAG Pipeline:**
 
-* Document ingestion
+* Textbook into markdown using Cloud GPUs
 
-* Chunking & preprocessing
+* Chunking & preprocessing by header
 
-* Embedding generation
+* Sentence transformer embedding (all-MiniLM-L6-v2)
 
-* Storage in vector DB (e.g., Vertex Matching Engine or self-hosted)
+* Storage in vector DB (ChromaDB)
 
-* Retrieval + reasoning layer
+* Langchain
+
+* Retrieval (Precision(k=3)) + Generation 
 
 Repository Structure (Proposed)
 
@@ -133,8 +115,7 @@ resumejobhelpai/
 │   ├── Dockerfile
 │   ├── requirements.txt
 │
-│── frontend/
-│   ├── lovable/              # Optional Lovable export
+│── frontend              
 │
 │── docs/
 │   ├── architecture.md
@@ -147,42 +128,45 @@ resumejobhelpai/
 Agentic Workflow 
 
 ```
-Agent 1 [Skill Extractor Agent]
-Input: Resume, Job Description
-Output: List of Skills For Each
+Agent 1 [PDF converter]
+Input: Resume
+Output: XML of resume
 
 Goes to:
 
 
-Agent 2[Skill Gap Agent]
-Input: List of Skills from Each Document
-Output: List of Skill Gaps
+Agent 2[Job description Skills]
+Input: Job description
+Output: Skill and proficiency requirements for the specific job
 
 Goes to:
 
-Agent 3[RAG Retrieval Agent]
-Input: List of Skill Gaps
-Output: Retrieved Relevant Info
+Agent 3[Resume Skills]
+Input: XML of resume
+Output: Skill and proficiency requirments with respect to the skills outlined from agent 2
 
 
 Goes to:
 
 
-Agent 4[Study Plan Generator Agent] [Will Have CoT & Deep Thinking for robust answers]
-Input: Retrieved Relevant Info + [Relevant Context From Resume + Job Description]
-Output: Personalized study plan with curated, high quality resources
+Python function to get the gaps
+Input: Skills 
+Output: Gaps
+
+Goes to:
+
+
+Agent 4[RAG + Study Plan]
+Input: Skill gaps
+Output: Study plan to get proficient in the necessary skills
+
 
  ```
 
 
 
-## **Technical Specifications**
 
-### **RAG**
 
-In this Repo, and for our first steps, we can create the script to take in text and output the Vector DB. We can use non-GCP native tools(ie Transformers, Pinecone) to create the vector DB. When the user(ie the Professor) runs our final demo script, the Vector DB will either be downloaded by the Professor from GCP or we can upload it to Hugging Face Hub for easy access[Pranav & Alex, you guys figure this out]  
-
- * It looks like you should be able to create a vector DB locally without GCP, so finalize documents to use and create the script to create vector DB(looks like Pinecone, FAISS, or ChromaDB are good options) 
 
 
 
