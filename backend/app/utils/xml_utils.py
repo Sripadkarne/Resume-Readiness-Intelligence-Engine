@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from xml.etree import ElementTree as ET
 
 
@@ -35,6 +36,9 @@ def extract_xml_fragment(payload: str, root_tag: str) -> str:
     return cleaned
 
 
+_UNESCAPED_AMPERSAND = re.compile(r"&(?!(?:amp|lt|gt|apos|quot|#[0-9]+|#x[0-9a-f]+);)", re.IGNORECASE)
+
+
 def parse_skill_entries(
     xml_payload: str,
     *,
@@ -42,9 +46,9 @@ def parse_skill_entries(
     error_prefix: str | None = None,
 ) -> list[dict[str, int]]:
     """Parse `<skill>` nodes underneath the provided root tag."""
-
+    sanitized_payload = _UNESCAPED_AMPERSAND.sub("&amp;", xml_payload)
     try:
-        root = ET.fromstring(xml_payload)
+        root = ET.fromstring(sanitized_payload)
     except ET.ParseError as exc:  # pragma: no cover
         prefix = error_prefix or "Skill XML"
         raise RuntimeError(f"{prefix} is not valid XML:\n{xml_payload}") from exc

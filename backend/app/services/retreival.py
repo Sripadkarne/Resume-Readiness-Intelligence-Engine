@@ -7,9 +7,10 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.documents import Document
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
+from pathlib import Path
 
 load_dotenv()
-GROQ_API_KEY = os.getenv("API_KEY")
+GROQ_API_KEY = "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"
 GROQ_MODEL_NAME = "llama-3.1-8b-instant" 
 #CHROMA_DIR = '/Users/pranavkandula/Desktop/School/Fall 2025/AI-Engineering/Final_Project/Resume-Readiness-Intelligence-Engine/VectorDB'
 

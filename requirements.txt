@@ -1,11 +1,12 @@
 # Core API stack
 fastapi
 uvicorn[standard]
-pydantic
+pydantic>=2,<3
 python-dotenv
 
 # LLM / RAG tooling
 langchain
+langchain-core>=0.2.43,<0.3
 openai
 tiktoken
 chromadb
@@ -14,6 +15,7 @@ sentence-transformers
 spacy
 nltk
 langchain_groq
+langchain_community
 
 # Data wrangling
 numpy
