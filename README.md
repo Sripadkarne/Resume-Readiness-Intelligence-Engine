@@ -63,6 +63,7 @@ backend/app/utils/            # XML helpers
 frontend/                     # Static UI
 VectorDB/                     # Chroma persistence (local)
 docs/                         # Brief, appendix, deliverables checklist
+demo/                         # Examples of resumes and job descriptions for local tests and demo
 Makefile                      # install/run helpers
 requirements.txt
 ```
@@ -144,31 +145,6 @@ Communicates with backend through Fast API calls.
 * Langchain
 
 * Retrieval (Precision(k=3)) + Generation 
-
-Repository Structure (Proposed)
-
-```
-resumejobhelpai/
-│── backend/
-│   ├── main.py               
-│   ├── rag/
-│   │   ├── ingest.py
-│   │   ├── chunking.py
-│   │   ├── embed.py
-│   │   ├── retrieve.py
-│   ├── agents/
-│   ├── Dockerfile
-│   ├── requirements.txt
-│
-│── frontend              
-│
-│── docs/
-│   ├── architecture.md
-│   ├── api.md
-│   ├── infra.md
-│
-└── README.md
-```
 
 Agentic Workflow 
 
