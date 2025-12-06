@@ -301,6 +301,43 @@
       color: var(--muted);
     }
 
+    .progress {
+      margin-top: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: #eef2f7;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #1ca1ce);
+      transition: width 200ms ease;
+    }
+
+    .progress.error .progress-fill {
+      background: linear-gradient(90deg, var(--error), #ef4444);
+    }
+
+    .progress-label {
+      font-size: 13px;
+      color: #0f172a;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
     .view-toggle {
       margin-top: 16px;
       display: flex;
@@ -478,6 +515,12 @@
       </select>
     </div>
     <div id="status" class="status"></div>
+    <div id="progress" class="progress" aria-hidden="true">
+      <div class="progress-track">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+      <div id="progress-label" class="progress-label">Preparing...</div>
+    </div>
 
     <h3>Study Plan</h3>
     <pre id="plan">(Run an analysis to see results here.)</pre>
@@ -508,9 +551,13 @@
     const jdInput = document.getElementById("jd-textarea");
     const viewSelect = document.getElementById("view-select");
     const skillsTableBody = document.getElementById("skills-table-body");
+    const progress = document.getElementById("progress");
+    const progressFill = document.getElementById("progress-fill");
+    const progressLabel = document.getElementById("progress-label");
     let lastRawPlan = "";
     let lastJobSkills = [];
     let lastResumeSkills = [];
+    let progressTimer = null;
 
     const API_URL = "http://localhost:8000/analyze-upload";
 
@@ -574,6 +621,7 @@
 
       submitBtn.disabled = true;
       setStatus("Running analysis...");
+      startProgress();
       planEl.textContent = "";
 
       try {
@@ -586,9 +634,11 @@
         renderView();
         renderSkillsTable();
         setStatus("Done");
+        finishProgress(true);
       } catch (err) {
         console.error(err);
         setStatus(err.message || "Something went wrong", true);
+        finishProgress(false);
       } finally {
         submitBtn.disabled = false;
       }
@@ -657,6 +707,39 @@
           `;
         })
         .join("");
+    }
+
+    function setProgress(percent, label) {
+      const clamped = Math.max(0, Math.min(percent, 100));
+      if (progressFill) progressFill.style.width = `${clamped}%`;
+      if (progressLabel && label) progressLabel.textContent = label;
+    }
+
+    function startProgress() {
+      if (!progress) return;
+      progress.classList.remove("error");
+      progress.style.display = "flex";
+      setProgress(8, "Preparing upload...");
+      let current = 8;
+      if (progressTimer) clearInterval(progressTimer);
+      progressTimer = setInterval(() => {
+        current = Math.min(current + Math.random() * 8, 90);
+        const phase = current < 30 ? "Uploading résumé..." : current < 70 ? "Analyzing role fit..." : "Building plan...";
+        setProgress(current, phase);
+      }, 450);
+    }
+
+    function finishProgress(success) {
+      if (!progress) return;
+      if (progressTimer) clearInterval(progressTimer);
+      progress.classList.toggle("error", !success);
+      setProgress(100, success ? "Complete" : "Failed");
+      if (success) {
+        setTimeout(() => {
+          setProgress(0, "Preparing...");
+          progress.style.display = "none";
+        }, 650);
+      }
     }
   </script>
 </body>

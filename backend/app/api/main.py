@@ -9,6 +9,7 @@ from tempfile import NamedTemporaryFile
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 
 from ..workflow import WorkflowArtifacts, analyze_inputs
 
@@ -22,6 +23,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/", include_in_schema=False)
+def root() -> RedirectResponse:
+    """Redirect the bare root to the interactive docs."""
+
+    return RedirectResponse(url="/docs")
 
 
 @app.get("/health")
