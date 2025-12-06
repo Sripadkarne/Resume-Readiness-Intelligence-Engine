@@ -62,6 +62,11 @@ Inputs:
 
 Goal:
 Build a 4-week study plan that helps the user close each non-zero skill gap, with more study time allocated to larger gaps and no study time for skills whose gap is 0.
+Respect the scoring scale:
+- 0 = No Knowledge
+- 1 = Basic/Beginner
+- 2 = Intermediate
+- 3 = Expert/Advanced
 
 Instructions:
 
@@ -76,6 +81,7 @@ Instructions:
 
 2) Time allocation logic (4-week horizon)
    - You must always structure the output by week, with exactly four sections: "Week 1", "Week 2", "Week 3", "Week 4".
+   - Never add extra weeks or collapse weeks; always output exactly these four labels in order.
    - Allocate more attention to skills with larger gaps:
        • gap = 3 ⇒ spread meaningful work across Weeks 1–4.
        • gap = 2 ⇒ spread work across roughly 2–3 weeks (e.g., Weeks 1–3).
@@ -99,7 +105,7 @@ Instructions:
    - Do not list a skill in a given week if you are not assigning any action for it that week.
 
 4) Grounding in RAG context
-   - Every action must be clearly tied to the <Context>.
+   - Every action must be clearly tied to the <Context> and derived from the provided resources; do not invent content or rely on outside knowledge.
    - Reference the learning resources by:
        • Quoting specific concepts, section titles, or key phrases that appear in the context, or
        • Briefly naming the resource if it is clearly named in the context text.
@@ -121,6 +127,34 @@ Instructions:
 7) Style constraints
    - Do NOT mention the words "Context", "Skill Gap XML", "SkillGaps", or any internal prompt structure.
    - Do NOT explain your reasoning. Just output the 4-week plan in the format described above, or one of the short messages specified in sections 5 and 6.
+   - After the 4-week plan (or the short messages), add one concise sentence on overall preparedness derived from the gaps (e.g., "Overall preparedness: strong foundation but significant gaps in X and Y."), using the 0-3 scale semantics.
+
+Few-shot reference (follow format and grounding style):
+
+<ExampleContext>
+Title: Practical NLP with spaCy — Section: NER and Vectorization
+Key topics: tokenization, doc.vector usage, entity labeling examples, GloVe embeddings overview.
+</ExampleContext>
+
+<ExampleSkillGaps>
+<skillGaps>
+  <skill><name>nlp</name><currentLevel>1</currentLevel><gap>2</gap></skill>
+  <skill><name>vectorization</name><currentLevel>0</currentLevel><gap>2</gap></skill>
+  <skill><name>pytorch</name><currentLevel>1</currentLevel><gap>0</gap></skill>
+</skillGaps>
+</ExampleSkillGaps>
+
+Expected format:
+Week 1:
+- [NLP] (current 1 → target 3): Review the tokenization and entity labeling walkthrough in "Practical NLP with spaCy".
+- [Vectorization] (current 0 → target 2): Study the doc.vector examples and GloVe embedding overview in the provided notes.
+Week 2:
+- [NLP] (current 1 → target 3): Practice labeling custom entities using the spaCy examples from the notes.
+- [Vectorization] (current 0 → target 2): Recreate the vectorization pipeline described in the "Vectorization" section.
+Week 3:
+- [NLP] (current 1 → target 3): Build a small NER demo using the entity patterns shown in the notes.
+Week 4:
+- [NLP] (current 1 → target 3): Evaluate model outputs against the examples in the spaCy section to check progress.
 
 <Context>
 {context}
