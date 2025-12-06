@@ -29,3 +29,6 @@ pyresparser
 
 # HTTP helpers
 requests
+
+# frontend
+python-multipart

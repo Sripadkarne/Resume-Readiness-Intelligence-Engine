@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Resume Readiness</title>
+  <style>
+    :root {
+      --bg: #f5f8fb;
+      --card: #ffffff;
+      --accent: #3bb7e0;
+      --accent-2: #76d4f2;
+      --text: #1f2937;
+      --chip: #e6f6fd;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --error: #d1495b;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(127,184,209,0.25), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(247,200,224,0.22), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px 48px;
+    }
+
+    .shell {
+      width: min(1150px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(31, 41, 55, 0.12);
+      padding: 32px 36px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shell::before,
+    .shell::after {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(59,183,224,0.12), transparent 60%);
+      top: -120px;
+      right: -60px;
+      z-index: 0;
+    }
+
+    .shell::after {
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(118,212,242,0.16), transparent 60%);
+      top: 220px;
+      left: -80px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      color: #0c4a6e;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid;
+      place-items: center;
+      color: #f9fafb;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 10px 25px rgba(59,183,224,0.35);
+      flex-shrink: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      font-size: clamp(32px, 5vw, 46px);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 .accent {
+      color: #0ea5e9;
+    }
+
+    .muted {
+      color: var(--muted);
+      margin: 12px auto 18px;
+      text-align: center;
+      max-width: 720px;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin: 12px 0 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid #c9e7f5;
+      color: #0ea5e9;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin: 14px 0 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #f8fbff;
+      color: #0f172a;
+      font-weight: 600;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+      margin: 16px 0 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      background: #fdfefe;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 0 0 1px rgba(12, 74, 110, 0.02);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 16px;
+      border: 1px dashed #d1d5db;
+      pointer-events: none;
+    }
+
+    .card header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      z-index: 1;
+    }
+
+    .card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid;
+      place-items: center;
+      color: #f8fafc;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-weight: 700;
+      margin: 0;
+      color: #0f172a;
+    }
+
+    .card-sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin: 10px 0 6px;
+      z-index: 1;
+    }
+
+    .drop-zone {
+      margin-top: 12px;
+      flex: 1;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #475569;
+      font-weight: 600;
+      gap: 8px;
+      z-index: 1;
+    }
+
+    .drop-zone svg {
+      color: #9ca3af;
+    }
+
+    .input-wrap {
+      margin-top: 12px;
+      z-index: 1;
+      width: 100%;
+    }
+
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      background-color: #ffffff;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+      box-sizing: border-box;
+      display: block;
+    }
+
+    textarea {
+      resize: none;
+      min-height: 200px;
+    }
+
+    textarea:focus,
+    input[type="file"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,183,224,0.18);
+    }
+
+    button {
+      margin: 22px auto 0;
+      background: linear-gradient(135deg, var(--accent), #1ca1ce);
+      color: #f8fafc;
+      border: none;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      max-width: 900px;
+      position: relative;
+      z-index: 1;
+      transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+      text-align: center;
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(59,183,224,0.25);
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .view-toggle {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .view-toggle label {
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    select {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 14px;
+      background: #ffffff;
+      color: var(--text);
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,183,224,0.18);
+    }
+
+    .error {
+      color: var(--error);
+    }
+
+    h3 {
+      margin-top: 24px;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: #0f172a;
+      position: relative;
+      z-index: 1;
+    }
+
+    pre#plan {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: auto;
+      position: relative;
+      z-index: 1;
+      min-height: 120px;
+    }
+
+    .table-wrap {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: inset 0 0 0 1px rgba(12, 74, 110, 0.02);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead {
+      background: #f0f4f8;
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="nav">
+      <div class="logo">R</div>
+      Resume Readiness
+    </div>
+
+    <h1>Ace Your Next Interview with <span class="accent">AI-Powered Prep</span></h1>
+    <p class="muted">
+      Upload your résumé and paste the job description. The engine will analyze your skill gaps and return
+      a focused 4-week study plan powered by your own resources.
+    </p>
+
+    <div class="chips">
+      <span class="chip">Data Science</span>
+      <span class="chip">Machine Learning</span>
+      <span class="chip">More to come...</span>
+    </div>
+
+      <div class="features">
+        <span class="pill">• Gap Analysis</span>
+        <span class="pill">• RAG-Powered Learning</span>
+        <span class="pill">• Personalized Plans</span>
+      </div>
+
+    <div class="grid">
+      <!-- Resume card -->
+      <div class="card">
+        <header>
+          <div class="card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 2v6h6"/>
+              <path d="M16 13H8"/>
+              <path d="M16 17H8"/>
+              <path d="M10 9H8"/>
+            </svg>
+          </div>
+          <div>
+            <p class="card-title">Upload Your Résumé</p>
+            <p class="card-sub">PDF format, max ~10MB</p>
+          </div>
+        </header>
+
+        <div class="drop-zone">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14m0-14-4 4m4-4 4 4"/>
+            <path d="M4 19h16"/>
+          </svg>
+          <div>Drop your résumé here or browse</div>
+        </div>
+        <div class="input-wrap">
+          <label for="resume-input">Résumé PDF</label>
+          <input type="file" id="resume-input" accept="application/pdf" />
+        </div>
+      </div>
+
+      <!-- Job description card -->
+        <div class="card">
+          <header>
+            <div class="card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10l4-2 4 2 4-2 4 2z"/>
+              </svg>
+          </div>
+          <div>
+            <p class="card-title">Job Description</p>
+            <p class="card-sub">Paste the role you're targeting</p>
+          </div>
+        </header>
+
+          <div class="input-wrap" style="flex:1; display:flex;">
+            <textarea id="jd-textarea" rows="8" placeholder="Paste the job description text here"></textarea>
+          </div>
+        </div>
+      </div>
+
+    <button id="submit">
+      Generate Study Plan
+    </button>
+    <div class="view-toggle">
+      <label for="view-select">View:</label>
+      <select id="view-select">
+        <option value="rendered" selected>Study Plan</option>
+        <option value="raw">Raw Output (markdown)</option>
+      </select>
+    </div>
+    <div id="status" class="status"></div>
+
+    <h3>Study Plan</h3>
+    <pre id="plan">(Run an analysis to see results here.)</pre>
+
+    <h3>Skills Overview</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Resume Level</th>
+            <th>Job Requirement</th>
+            <th>Gap</th>
+          </tr>
+        </thead>
+        <tbody id="skills-table-body">
+          <tr><td colspan="4" style="text-align:center; color: var(--muted);">Run an analysis to see skills.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const submitBtn = document.getElementById("submit");
+    const statusEl = document.getElementById("status");
+    const planEl = document.getElementById("plan");
+    const resumeInput = document.getElementById("resume-input");
+    const jdInput = document.getElementById("jd-textarea");
+    const viewSelect = document.getElementById("view-select");
+    const skillsTableBody = document.getElementById("skills-table-body");
+    let lastRawPlan = "";
+    let lastJobSkills = [];
+    let lastResumeSkills = [];
+
+    const API_URL = "http://localhost:8000/analyze-upload";
+
+    function setStatus(text, isError = false) {
+      statusEl.textContent = text;
+      statusEl.classList.toggle("error", isError);
+    }
+
+    function trimPreface(text) {
+      const markers = ["Week 1", "You already meet", "I apologize"];
+      let cut = text.length;
+      for (const marker of markers) {
+        const idx = text.indexOf(marker);
+        if (idx !== -1 && idx < cut) cut = idx;
+      }
+      return text.slice(0, cut) ? text.slice(cut).trim() : text.trim();
+    }
+
+    function renderMarkdown(md) {
+      const trimmed = trimPreface(md);
+      const escaped = trimmed
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      const lines = escaped.split(/\r?\n/);
+      let html = "";
+      let inList = false;
+      for (const line of lines) {
+        if (line.startsWith("- ")) {
+          if (!inList) {
+            html += "<ul>";
+            inList = true;
+          }
+          html += "<li>" + line.slice(2).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") + "</li>";
+        } else {
+          if (inList) {
+            html += "</ul>";
+            inList = false;
+          }
+          if (line.trim() === "") {
+            html += "<br/>";
+          } else {
+            html += "<p>" + line.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") + "</p>";
+          }
+        }
+      }
+      if (inList) html += "</ul>";
+      return html || "(No study plan returned)";
+    }
+
+    submitBtn.addEventListener("click", async () => {
+      const file = resumeInput.files[0];
+      const jd = jdInput.value.trim();
+      if (!file) return setStatus("Please select a PDF résumé.", true);
+      if (!jd) return setStatus("Please paste a job description.", true);
+
+      const form = new FormData();
+      form.append("resume_pdf", file);
+      form.append("job_description", jd);
+
+      submitBtn.disabled = true;
+      setStatus("Running analysis...");
+      planEl.textContent = "";
+
+      try {
+        const res = await fetch(API_URL, { method: "POST", body: form });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Request failed");
+        lastRawPlan = data.study_plan || "";
+        lastJobSkills = data.job_skills || [];
+        lastResumeSkills = data.resume_skills || [];
+        renderView();
+        renderSkillsTable();
+        setStatus("Done");
+      } catch (err) {
+        console.error(err);
+        setStatus(err.message || "Something went wrong", true);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    function renderView() {
+      const mode = viewSelect.value;
+      if (!lastRawPlan) {
+        planEl.textContent = "(No study plan returned)";
+        return;
+      }
+      if (mode === "raw") {
+        planEl.textContent = trimPreface(lastRawPlan);
+      } else {
+        planEl.innerHTML = renderMarkdown(lastRawPlan);
+      }
+    }
+
+    viewSelect.addEventListener("change", renderView);
+
+    function renderSkillsTable() {
+      if (!skillsTableBody) return;
+      const labels = ["0 - No Knowledge", "1 - Basic/Beginner", "2 - Intermediate", "3 - Expert/Advanced"];
+      const norm = (name) => (name || "").toLowerCase().trim();
+
+      const resumeMap = new Map();
+      for (const skill of lastResumeSkills || []) {
+        const name = norm(skill.name);
+        if (!name) continue;
+        resumeMap.set(name, skill.level ?? 0);
+      }
+
+      const rows = [];
+      for (const jobSkill of lastJobSkills || []) {
+        const nameRaw = jobSkill.name || "";
+        const name = norm(nameRaw);
+        if (!name) continue;
+        const jobLevel = Number.isFinite(jobSkill.level) ? jobSkill.level : 0;
+        const resumeLevel = Number.isFinite(resumeMap.get(name)) ? resumeMap.get(name) : 0;
+        const gap = Math.max(0, jobLevel - resumeLevel);
+        rows.push({
+          name: nameRaw,
+          resumeLevel,
+          jobLevel,
+          gap,
+        });
+      }
+
+      if (!rows.length) {
+        skillsTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--muted);">No skills available yet.</td></tr>`;
+        return;
+      }
+
+      skillsTableBody.innerHTML = rows
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((row) => {
+          const resumeLabel = labels[row.resumeLevel] || row.resumeLevel;
+          const jobLabel = labels[row.jobLevel] || row.jobLevel;
+          return `
+            <tr>
+              <td>${row.name}</td>
+              <td>${resumeLabel}</td>
+              <td>${jobLabel}</td>
+              <td>${row.gap}</td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+  </script>
+</body>
+</html>
