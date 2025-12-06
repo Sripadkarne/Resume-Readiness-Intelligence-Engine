@@ -1,29 +1,74 @@
 # Resume Readiness Intelligence Engine
 
-Resume Readiness Intelligence Engine(RRIE) is a web-based application that uses agentic AI, RAG, and targeted learning pathways to help job seekers evaluate their readiness for specific roles and grow the knowledge they are missing. Unlike tools focused on “gaming” interviews, our mission is to enable real skill development through structured learning, curated resources, and personalized practice.
+AI assistant that analyzes a résumé and job description, detects skill gaps, retrieves learning resources, and generates a 4-week study plan.
 
-Developed by:
+## Quickstart
 
-* Sripad Karne 
-* Pranav Kandula 
-* Alexandre Edouard Eleuthère Sepúlveda de Dietrich
+Requirements: Python 3.11+ and a Groq API key.
 
-## **Problem Statement**
+1) Install deps  
+   ```bash
+   python -m pip install --upgrade pip
+   python -m pip install -r requirements.txt
+   ```
+   (Or `make install`.)
 
-Job seekers, especially in Data Science, Machine Learning, and AI Engineering, often struggle to assess whether they are qualified for a role and to identify the skills they need to improve. Existing AI tools generate answers but don’t actually teach.
+2) Configure env (`.env` in repo root)  
+   ```
+   GROQ_API_KEY=your_key_here
+   # Optional overrides: RAG_MODEL, RAG_PERSIST_DIR, RAG_COLLECTION_NAME, RAG_EMBEDDING_MODEL, RAG_TOP_K, RESUME_PARSER_MODEL, RESUME_PARSER_TEMPERATURE
+   ```
 
-Our solution:
+3) Run backend  
+   ```bash
+   uvicorn backend.app.api.main:app --host 0.0.0.0 --port 8000 --reload
+   ```
+   (Or `make run-backend`.)
 
-A Job Readiness Intelligence Engine that evaluates a user's current skills, detects knowledge gaps, and generates targeted study pathways using high-quality, credible resources. No shortcuts. True knowledge growth.
+4) Serve frontend  
+   ```bash
+   python -m http.server 3000 --directory frontend
+   ```
+   Visit `http://localhost:3000` and upload a résumé PDF + paste a job description.
 
-## **Intended Users**
+## How it works (pipeline)
 
-**Primary users (MVP scope):**
+1) Résumé → XML (`resume_parser.py`)  
+2) Job skills (LLM) → `<jobSkills>` XML (`job_skill_eval.py`)  
+3) Résumé skills (LLM) → `<skillsEvaluation>` XML (`resume_skill_eval.py`)  
+4) Skill gaps → `<skillGaps>` XML (`skill_gap_eval.py`)  
+5) RAG study plan: retrieve from Chroma (`VectorDB/`), generate 4-week plan (`rag_agent.py`)  
+6) API (`backend/app/api/main.py`) returns:
+   - `study_plan` (markdown), `plan_structured` (weeks/tasks/resources), `plan_reasoning`
+   - job/resume skills and gap XML
 
-* Data Science candidates
+## API endpoints
 
-* Machine Learning Engineer candidates
+- `GET /health` — uptime probe  
+- `POST /analyze` — accepts JSON `{ resume_pdf_path, job_description }`  
+- `POST /analyze-upload` — multipart form (`resume_pdf`, `job_description`) used by the frontend
 
+<<<<<<< HEAD
+## Frontend
+
+Static HTML/CSS/JS (`frontend/index.html`), no build step. Fetches `POST /analyze-upload`. Views: Study Plan, Structured, Raw, Reasoning.
+
+## Project structure
+
+```
+backend/app/api/              # FastAPI entrypoint
+backend/app/workflow/         # Orchestrator wiring services
+backend/app/services/         # Resume/job skill eval, skill gap, RAG agent
+backend/app/utils/            # XML helpers
+frontend/                     # Static UI
+VectorDB/                     # Chroma persistence (local)
+docs/                         # Brief, appendix, deliverables checklist
+Makefile                      # install/run helpers
+requirements.txt
+```
+
+## Deliverables
+=======
 **Planned expansion:**
 
 * Software Engineering
@@ -180,6 +225,15 @@ Output: Study plan to get proficient in the necessary skills
 
 
 
+>>>>>>> 180718058884418c4348910dd69b4a0700e895ef
 
+- Working prototype (steps above; Makefile included)
+- Product brief: `docs/product_brief.md`
+- Technical appendix: `docs/technical_appendix.md`
+- Deliverables checklist: `docs/deliverables.md`
+- Add your deck and demo video to `docs/` or link them in `docs/deliverables.md`
 
+## Notes
 
+- Defaults use HuggingFace `all-MiniLM-L6-v2` embeddings with Chroma. Override paths/models via env vars if needed.
+- `main` is protected; merge changes via PR.
