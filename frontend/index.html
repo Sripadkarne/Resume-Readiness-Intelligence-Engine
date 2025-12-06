@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Readiness</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --accent: #22d3ee;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #1f2937;
+      --error: #f87171;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(34,211,238,0.15), transparent 25%),
+                  radial-gradient(circle at 80% 0%, rgba(129,140,248,0.12), transparent 25%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      padding: 28px;
+    }
+    h1 { margin: 0 0 6px; font-weight: 700; letter-spacing: -0.02em; }
+    .muted { color: var(--muted); margin: 0 0 20px; }
+    label { display: block; font-weight: 600; margin: 14px 0 6px; }
+    textarea, input[type="file"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0b1220;
+      color: var(--text);
+      padding: 12px;
+      font-size: 15px;
+      transition: border-color 120ms ease;
+    }
+    textarea:focus, input[type="file"]:focus { outline: none; border-color: var(--accent); }
+    button {
+      margin-top: 18px;
+      background: var(--accent);
+      color: #0b1220;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+      width: 100%;
+    }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 25px rgba(34,211,238,0.25); }
+    pre {
+      background: #0b1220;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .status { margin-top: 14px; font-weight: 600; }
+    .error { color: var(--error); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <h1>Resume Readiness Engine</h1>
+    <p class="muted">Upload a PDF résumé and paste a job description. The backend will analyze and return a study plan.</p>
+
+    <label for="resume">Résumé PDF</label>
+    <input type="file" id="resume" accept="application/pdf" />
+
+    <label for="jd">Job description</label>
+    <textarea id="jd" rows="10" placeholder="Paste the job description text here"></textarea>
+
+    <button id="submit">Generate study plan</button>
+    <div id="status" class="status"></div>
+
+    <h3>Study Plan</h3>
+    <pre id="plan">(Run an analysis to see results here.)</pre>
+  </div>
+
+  <script>
+    const submitBtn = document.getElementById('submit');
+    const statusEl = document.getElementById('status');
+    const planEl = document.getElementById('plan');
+    const resumeInput = document.getElementById('resume');
+    const jdInput = document.getElementById('jd');
+
+    const API_URL = 'http://localhost:8000/analyze-upload';
+
+    function setStatus(text, isError=false) {
+      statusEl.textContent = text;
+      statusEl.classList.toggle('error', isError);
+    }
+
+    submitBtn.addEventListener('click', async () => {
+      const file = resumeInput.files[0];
+      const jd = jdInput.value.trim();
+      if (!file) return setStatus('Please select a PDF résumé.', true);
+      if (!jd) return setStatus('Please paste a job description.', true);
+
+      const form = new FormData();
+      form.append('resume_pdf', file);
+      form.append('job_description', jd);
+
+      submitBtn.disabled = true;
+      setStatus('Running analysis...');
+      planEl.textContent = '';
+
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: form });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Request failed');
+        planEl.textContent = data.study_plan || '(No study plan returned)';
+        setStatus('Done');
+      } catch (err) {
+        console.error(err);
+        setStatus(err.message || 'Something went wrong', true);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
