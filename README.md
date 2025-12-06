@@ -184,25 +184,6 @@ Output: Study plan to get proficient in the necessary skills
 
  ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> 180718058884418c4348910dd69b4a0700e895ef
-
 - Working prototype (steps above; Makefile included)
 - Product brief: `docs/product_brief.md`
 - Technical appendix: `docs/technical_appendix.md`
