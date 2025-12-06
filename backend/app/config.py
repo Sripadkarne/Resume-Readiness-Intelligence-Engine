@@ -21,7 +21,7 @@ class Settings:
     resume_parser_model: str = "llama-3.1-8b-instant"
     resume_parser_max_tokens: int = 2000
     resume_parser_temperature: float = 0.0
-    rag_model: str = "openai/gpt-oss-120b"
+    rag_model: str = "llama-3.3-70b-versatile"
     rag_temperature: float = 0.1
     rag_persist_dir: str | None = None
     rag_collection_name: str = "RAG_DB_Learning_Resources"

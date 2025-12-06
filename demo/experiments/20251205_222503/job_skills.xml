@@ -1,0 +1,28 @@
+<jobSkills>
+  <skill><name>Python</name><level>3</level></skill>
+  <skill><name>PyTorch</name><level>3</level></skill>
+  <skill><name>Machine Learning</name><level>3</level></skill>
+  <skill><name>Deep Learning</name><level>2</level></skill>
+  <skill><name>NLP</name><level>2</level></skill>
+  <skill><name>Agentic Systems</name><level>2</level></skill>
+  <skill><name>LightGBM</name><level>2</level></skill>
+  <skill><name>XGBoost</name><level>2</level></skill>
+  <skill><name>LangGraph</name><level>2</level></skill>
+  <skill><name>Transformers</name><level>2</level></skill>
+  <skill><name>Matplotlib</name><level>1</level></skill>
+  <skill><name>Pandas</name><level>1</level></skill>
+  <skill><name>Jupyter</name><level>1</level></skill>
+  <skill><name>Weights & Biases</name><level>1</level></skill>
+  <skill><name>Gradio</name><level>1</level></skill>
+  <skill><name>Streamlit</name><level>1</level></skill>
+  <skill><name>AWS</name><level>1</level></skill>
+  <skill><name>Postgres/Pgvector</name><level>1</level></skill>
+  <skill><name>S3</name><level>1</level></skill>
+  <skill><name>SQLite</name><level>1</level></skill>
+  <skill><name>Arize</name><level>1</level></skill>
+  <skill><name>Amazon EKS</name><level>1</level></skill>
+  <skill><name>Containerization</name><level>1</level></skill>
+  <skill><name>Grafana</name><level>1</level></skill>
+  <skill><name>Jenkins</name><level>1</level></skill>
+  <skill><name>Ray</name><level>1</level></skill>
+</jobSkills>
