@@ -427,6 +427,49 @@
       statusEl.classList.toggle("error", isError);
     }
 
+    function trimPreface(text) {
+      const markers = ["Week 1", "You already meet", "I apologize"];
+      let cut = text.length;
+      for (const marker of markers) {
+        const idx = text.indexOf(marker);
+        if (idx !== -1 && idx < cut) cut = idx;
+      }
+      return text.slice(0, cut) ? text.slice(cut).trim() : text.trim();
+    }
+
+    function renderMarkdown(md) {
+      const trimmed = trimPreface(md);
+      const escaped = trimmed
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      const lines = escaped.split(/\r?\n/);
+      let html = "";
+      let inList = false;
+      for (const line of lines) {
+        if (line.startsWith("- ")) {
+          if (!inList) {
+            html += "<ul>";
+            inList = true;
+          }
+          html += "<li>" + line.slice(2).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") + "</li>";
+        } else {
+          if (inList) {
+            html += "</ul>";
+            inList = false;
+          }
+          if (line.trim() === "") {
+            html += "<br/>";
+          } else {
+            html += "<p>" + line.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") + "</p>";
+          }
+        }
+      }
+      if (inList) html += "</ul>";
+      return html || "(No study plan returned)";
+    }
+
     submitBtn.addEventListener("click", async () => {
       const file = resumeInput.files[0];
       const jd = jdInput.value.trim();
@@ -445,7 +488,7 @@
         const res = await fetch(API_URL, { method: "POST", body: form });
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "Request failed");
-        planEl.textContent = data.study_plan || "(No study plan returned)";
+        planEl.innerHTML = renderMarkdown(data.study_plan || "");
         setStatus("Done");
       } catch (err) {
         console.error(err);
