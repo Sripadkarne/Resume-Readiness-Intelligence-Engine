@@ -61,7 +61,7 @@ Inputs:
   Gap = required - current. Target level = clamp(currentLevel + gap, 0..3).
 
 Instructions:
-1) Parse the <SkillGaps> XML and select all <skill> nodes where <gap> > 0.
+1) Parse the <SkillGaps> XML and select all <skill> nodes where <gap> is not 0.
    Sort the selected skills primarily by descending <gap>, and secondarily by alphabetical <name>.
 2) For each selected skill:
    - Start with a one-line header:
