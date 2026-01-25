@@ -48,7 +48,6 @@ Requirements: Python 3.11+ and a Groq API key.
 - `POST /analyze` — accepts JSON `{ resume_pdf_path, job_description }`  
 - `POST /analyze-upload` — multipart form (`resume_pdf`, `job_description`) used by the frontend
 
-<<<<<<< HEAD
 ## Frontend
 
 Static HTML/CSS/JS (`frontend/index.html`), no build step. Fetches `POST /analyze-upload`. Views: Study Plan, Structured, Raw, Reasoning.
